@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Launch Desk — Freelance Crew</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="css2.css" rel="stylesheet">
+<style>
+  :root{
+    --board:#14181F;
+    --board-2:#1B212B;
+    --flap:#EFE9DD;
+    --ink:#1B2430;
+    --amber:#E8A33D;
+    --teal:#3E7C82;
+    --line:#333B48;
+    --paper-dim:#B9B2A2;
+    --text-dim:#8B93A3;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--board);
+    color:var(--flap);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Space Grotesk',sans-serif; margin:0; letter-spacing:-0.01em;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit;}
+  .wrap{max-width:1180px; margin:0 auto; padding:0 32px;}
+  @media (max-width:640px){ .wrap{padding:0 20px;} }
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(20,24,31,0.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{display:flex; align-items:center; justify-content:space-between; padding:16px 0;}
+  .logo{font-size:16px; font-weight:700; letter-spacing:0.06em;}
+  .logo span{color:var(--amber);}
+  .nav-links{display:flex; gap:28px; align-items:center; font-size:13px;}
+  .nav-links a{
+    text-decoration:none; color:var(--text-dim);
+    font-family:'IBM Plex Mono',monospace; letter-spacing:0.04em;
+    transition:color .15s;
+  }
+  .nav-links a:hover, .nav-links a:focus-visible{color:var(--flap);}
+  .status-pill{
+    display:flex; align-items:center; gap:7px;
+    font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.05em;
+    color:#8FE3A0; border:1px solid #2E4A34; background:#182119;
+    padding:5px 10px; border-radius:3px;
+  }
+  .status-dot{width:6px; height:6px; border-radius:50%; background:#5FD87A; box-shadow:0 0 6px #5FD87A;}
+  .nav-mobile-hide{display:flex;}
+  @media (max-width:760px){ .nav-mobile-hide{display:none;} }
+
+  /* ---------- HERO ---------- */
+  header.hero{padding:88px 0 64px; border-bottom:1px solid var(--line); position:relative; overflow:hidden;}
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:0.14em;
+    color:var(--amber); text-transform:uppercase; margin-bottom:22px; display:inline-flex; gap:10px; align-items:center;
+  }
+  .eyebrow::before{content:''; width:22px; height:1px; background:var(--amber); display:inline-block;}
+
+  .flap-row{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 28px;}
+  .flap{
+    background:var(--flap); color:var(--ink);
+    font-family:'Space Grotesk',sans-serif; font-weight:700;
+    font-size:clamp(28px,6vw,58px); line-height:1;
+    padding:10px 4px; border-radius:4px;
+    min-width:0.75em; text-align:center;
+    box-shadow:0 2px 0 rgba(0,0,0,0.35), inset 0 -14px 0 rgba(0,0,0,0.06);
+    position:relative;
+  }
+  .flap::after{
+    content:''; position:absolute; left:0; right:0; top:50%; height:1px;
+    background:rgba(0,0,0,0.18);
+  }
+  .flap.space{background:transparent; box-shadow:none;}
+  .flap.amber{color:var(--amber);}
+
+  .hero-sub{
+    font-size:17px; line-height:1.65; color:#C7CCD6; max-width:560px; margin:0 0 34px;
+  }
+  .hero-ctas{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:56px;}
+  .btn{
+    font-family:'IBM Plex Mono',monospace; font-size:13px; letter-spacing:0.03em;
+    padding:13px 22px; border-radius:3px; text-decoration:none;
+    display:inline-flex; align-items:center; gap:8px;
+    border:1px solid transparent; transition:transform .15s, background .15s, border-color .15s;
+  }
+  .btn-primary{background:var(--amber); color:#20160A;}
+  .btn-primary:hover{transform:translateY(-1px); background:#f0ae4c;}
+  .btn-ghost{border-color:var(--line); color:var(--flap);}
+  .btn-ghost:hover{border-color:var(--teal); background:rgba(62,124,130,0.12);}
+
+  .ticker-wrap{
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+    overflow:hidden; padding:14px 0; background:var(--board-2);
+    margin:0 -32px; width:calc(100% + 64px);
+  }
+  .ticker{display:flex; gap:48px; white-space:nowrap; animation:scroll 26s linear infinite; width:max-content;}
+  .ticker span{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:0.08em; color:var(--text-dim);
+  }
+  .ticker span b{color:var(--amber); font-weight:500;}
+  @keyframes scroll{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
+  @media (prefers-reduced-motion: reduce){ .ticker{animation:none;} }
+
+  /* ---------- SECTION HEADERS ---------- */
+  section{padding:80px 0; border-bottom:1px solid var(--line);}
+  .sec-head{display:flex; justify-content:space-between; align-items:flex-end; gap:24px; margin-bottom:44px; flex-wrap:wrap;}
+  .sec-eyebrow{font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:0.12em; color:var(--teal); text-transform:uppercase; margin-bottom:10px;}
+  .sec-title{font-size:clamp(26px,3.4vw,38px); font-weight:600;}
+  .sec-note{max-width:360px; color:var(--text-dim); font-size:14px; line-height:1.6;}
+
+  /* ---------- ABOUT / STATS BOARD ---------- */
+  .about-grid{display:grid; grid-template-columns:1.1fr 1fr; gap:56px; align-items:start;}
+  @media (max-width:800px){ .about-grid{grid-template-columns:1fr;} }
+  .about-copy p{font-size:16px; line-height:1.8; color:#C7CCD6; margin:0 0 18px;}
+  .about-copy strong{color:var(--flap); font-weight:600;}
+
+  .board-panel{background:var(--board-2); border:1px solid var(--line); border-radius:6px; padding:6px;}
+  .board-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:16px 16px; border-bottom:1px solid var(--line);
+    font-family:'IBM Plex Mono',monospace; font-size:13px;
+  }
+  .board-row:last-child{border-bottom:none;}
+  .board-row .label{color:var(--text-dim); letter-spacing:0.04em;}
+  .board-row .val{color:var(--amber); font-weight:600; font-size:16px;}
+
+  /* ---------- DEPARTMENTS ---------- */
+  .dept-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:8px; overflow:hidden;}
+  @media (max-width:900px){ .dept-grid{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:560px){ .dept-grid{grid-template-columns:1fr;} }
+  .dept-card{background:var(--board); padding:30px 26px; min-height:220px; display:flex; flex-direction:column; gap:14px;}
+  .dept-code{font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:0.1em; color:var(--teal);}
+  .dept-title{font-size:19px; font-weight:600;}
+  .dept-desc{font-size:13.5px; line-height:1.65; color:var(--text-dim); flex-grow:1;}
+  .dept-count{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--paper-dim); border-top:1px dashed var(--line); padding-top:12px;}
+
+  /* ---------- CREW ROSTER ---------- */
+  .crew-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+  @media (max-width:900px){ .crew-grid{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:520px){ .crew-grid{grid-template-columns:1fr;} }
+  .crew-card{
+    background:var(--flap); color:var(--ink); border-radius:8px; padding:22px;
+    position:relative; overflow:hidden; min-height:190px; display:flex; flex-direction:column; justify-content:space-between;
+    transition:transform .18s ease;
+  }
+  .crew-card:hover{transform:translateY(-3px);}
+  .crew-top{display:flex; justify-content:space-between; align-items:flex-start;}
+  .crew-code{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.08em; color:var(--teal); font-weight:600;}
+  .crew-avatar{
+    width:40px; height:40px; border-radius:50%; background:var(--ink); color:var(--flap);
+    display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14px;
+  }
+  .crew-name{font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:600; margin-top:14px;}
+  .crew-role{font-size:12.5px; color:#556; margin-top:2px; font-weight:500;}
+  .crew-line{font-size:12.5px; line-height:1.55; color:#3A4250; margin-top:10px;}
+  .crew-status{
+    margin-top:14px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.06em;
+    color:var(--teal); display:flex; align-items:center; gap:6px;
+  }
+  .crew-status::before{content:''; width:5px; height:5px; border-radius:50%; background:var(--teal);}
+
+  /* ---------- CLIENT PROCESS ---------- */
+  .process-list{display:flex; flex-direction:column;}
+  .process-row{
+    display:grid; grid-template-columns:70px 1fr; gap:24px; padding:26px 0; border-top:1px solid var(--line);
+    align-items:start;
+  }
+  .process-row:last-child{border-bottom:1px solid var(--line);}
+  .process-num{font-family:'IBM Plex Mono',monospace; color:var(--amber); font-size:14px; padding-top:2px;}
+  .process-title{font-size:18px; font-weight:600; margin-bottom:8px; font-family:'Space Grotesk',sans-serif;}
+  .process-desc{color:var(--text-dim); font-size:14px; line-height:1.65; max-width:640px;}
+
+  /* ---------- CONTACT / FOOTER ---------- */
+  footer{padding:80px 0 40px;}
+  .cta-board{
+    background:var(--board-2); border:1px solid var(--line); border-radius:10px;
+    padding:52px 40px; text-align:center; margin-bottom:56px;
+  }
+  .cta-board .sec-eyebrow{justify-content:center; display:flex;}
+  .cta-board h2{font-size:clamp(24px,4vw,36px); margin-bottom:16px;}
+  .cta-board p{color:var(--text-dim); max-width:480px; margin:0 auto 28px; font-size:14.5px; line-height:1.65;}
+  .cta-row{display:flex; gap:14px; justify-content:center; flex-wrap:wrap;}
+
+  .foot-grid{display:flex; justify-content:space-between; flex-wrap:wrap; gap:24px; font-size:13px; color:var(--text-dim);}
+  .foot-grid .logo{margin-bottom:8px;}
+  .foot-links{display:flex; gap:20px; font-family:'IBM Plex Mono',monospace; font-size:12px;}
+  .foot-links a{text-decoration:none; color:var(--text-dim);}
+  .foot-links a:hover{color:var(--flap);}
+  .copyright{margin-top:36px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#586074; text-align:center;}
+
+  ::selection{background:var(--amber); color:#20160A;}
+  a:focus-visible, button:focus-visible{outline:2px solid var(--amber); outline-offset:2px;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap nav-inner">
+    <div class="logo">THE LAUNCH <span>DESK</span></div>
+    <div class="nav-links nav-mobile-hide">
+      <a href="#services">Departments</a>
+      <a href="#crew">Crew</a>
+      <a href="#process">Process</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <div class="status-pill"><span class="status-dot"></span> 7 ON DECK</div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Freelance Crew · Est. 2026</div>
+    <div class="flap-row" id="flapTitle" aria-label="We build. We launch. We show you how.">
+      <!-- populated by JS -->
+    </div>
+    <p class="hero-sub">
+      A lean crew of seven who build, manage, and market client work end
+      to end — no scattered freelancers, one desk that answers for all of it.
+    </p>
+    <div class="hero-ctas">
+      <a class="btn btn-primary" href="#crew">Meet the crew</a>
+      <a class="btn btn-ghost" href="#services">See what we do</a>
+    </div>
+  </div>
+  <div class="ticker-wrap">
+    <div class="ticker">
+      <span><b>DEV</b> — Web &amp; product builds</span>
+      <span><b>OPS</b> — Client &amp; people management</span>
+      <span><b>MKT</b> — Growth &amp; positioning</span>
+      <span><b>SUPPORT</b> — Ongoing client support</span>
+      <span><b>DEV</b> — Web &amp; product builds</span>
+      <span><b>OPS</b> — Client &amp; people management</span>
+      <span><b>MKT</b> — Growth &amp; positioning</span>
+      <span><b>SUPPORT</b> — Ongoing client support</span>
+    </div>
+  </div>
+</header>
+
+<section id="about">
+  <div class="wrap about-grid">
+    <div class="about-copy">
+      <div class="sec-eyebrow">Who we are</div>
+      <h2 class="sec-title" style="margin-bottom:20px;">Small crew. Real ops. No agency bloat.</h2>
+      <p>We started as four freelancers splitting client work over group chats.
+      Eighteen months later we're <strong>seven people with fixed roles</strong> —
+      a lead, two developers, two people who own client relationships and HR,
+      one who runs marketing, and one who handles general support so nothing
+      falls through the cracks between desks.</p>
+      <p>No office, no fixed hours, no ping-pong table. Just a roster,
+      a shared calendar, and a way of working that scales past
+      "just a few of us doing favors for each other."</p>
+    </div>
+    <div class="board-panel">
+      <div class="board-row"><span class="label">CREW SIZE</span><span class="val">07</span></div>
+      <div class="board-row"><span class="label">PROJECTS SHIPPED</span><span class="val">40+</span></div>
+      <div class="board-row"><span class="label">REPEAT CLIENTS</span><span class="val">18</span></div>
+      <div class="board-row"><span class="label">TIME ZONES COVERED</span><span class="val">03</span></div>
+      <div class="board-row"><span class="label">STATUS</span><span class="val">BOOKING Q4</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="services">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="sec-eyebrow">Departments</div>
+        <h2 class="sec-title">Five desks, one crew</h2>
+      </div>
+      <p class="sec-note">Every project touches at least two of these — that's the point of having a crew instead of one generalist.</p>
+    </div>
+    <div class="dept-grid">
+      <div class="dept-card">
+        <div class="dept-code">LEAD</div>
+        <div class="dept-title">Direction</div>
+        <div class="dept-desc">Sets scope, owns the final call on anything client-facing, and steps in wherever a desk needs backup.</div>
+        <div class="dept-count">1 on desk</div>
+      </div>
+      <div class="dept-card">
+        <div class="dept-code">DEV</div>
+        <div class="dept-title">Development</div>
+        <div class="dept-desc">Websites, web apps, and internal tools, built and shipped by two developers who pair on anything non-trivial.</div>
+        <div class="dept-count">2 on desk</div>
+      </div>
+      <div class="dept-card">
+        <div class="dept-code">OPS</div>
+        <div class="dept-title">Client &amp; People Management</div>
+        <div class="dept-desc">The two people keeping clients briefed, contracts clear, and the crew's own workload sane. Part HR, part account management.</div>
+        <div class="dept-count">2 on desk</div>
+      </div>
+      <div class="dept-card">
+        <div class="dept-code">MKT</div>
+        <div class="dept-title">Marketing &amp; Growth</div>
+        <div class="dept-desc">Positioning, outreach, and the portfolio you're reading right now — run by the one person who lives in this desk full-time.</div>
+        <div class="dept-count">1 on desk</div>
+      </div>
+      <div class="dept-card">
+        <div class="dept-code">SUPPORT</div>
+        <div class="dept-title">General Support</div>
+        <div class="dept-desc">The desk anyone can reach for help mid-project — questions, small fixes, and anything that doesn't fit neatly elsewhere.</div>
+        <div class="dept-count">1 on desk</div>
+      </div>
+      <div class="dept-card">
+        <div class="dept-code">SUPPORT</div>
+        <div class="dept-title">General Support</div>
+        <div class="dept-desc">The desk anyone can reach for help mid-project — questions, small fixes, and anything that doesn't fit neatly elsewhere.</div>
+        <div class="dept-count">1 on desk</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="crew">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="sec-eyebrow">The Roster</div>
+        <h2 class="sec-title">Seven seats, seven names</h2>
+      </div>
+      <p class="sec-note">Swap in your own names, faces, and one-liners — this is the demo roster.</p>
+    </div>
+    <div class="crew-grid">
+
+      <div class="crew-card">
+        <div class="crew-top"><span class="crew-code">LEAD-01</span><span class="crew-avatar">AK</span></div>
+        <div>
+          <div class="crew-name">Aarav K.</div>
+          <div class="crew-role">Founder &amp; Team Lead</div>
+          <div class="crew-line">Sets direction, signs off on scope, and takes the calls nobody else wants to.</div>
+        </div>
+        <div class="crew-status">ON DECK</div>
+      </div>
+
+      <div class="crew-card">
+        <div class="crew-top"><span class="crew-code">DEV-01</span><span class="crew-avatar">RS</span></div>
+        <div>
+          <div class="crew-name">Riya S.</div>
+          <div class="crew-role">Full-Stack Developer</div>
+          <div class="crew-line">Owns front-end builds and the parts of the stack clients actually click on.</div>
+        </div>
+        <div class="crew-status">ON DECK</div>
+      </div>
+
+      <div class="crew-card">
+        <div class="crew-top"><span class="crew-code">DEV-02</span><span class="crew-avatar">VN</span></div>
+        <div>
+          <div class="crew-name">Vikram N.</div>
+          <div class="crew-role">Backend &amp; Infra Developer</div>
+          <div class="crew-line">Keeps the servers, data, and integrations quietly working in the background.</div>
+        </div>
+        <div class="crew-status">ON DECK</div>
+      </div>
+
+      <div class="crew-card">
+        <div class="crew-top"><span class="crew-code">OPS-01</span><span class="crew-avatar">PM</span></div>
+        <div>
+          <div class="crew-name">Priya M.</div>
+          <div class="crew-role">Client Relations &amp; HR</div>
+          <div class="crew-line">First point of contact for clients, and the one who onboards new crew members.</div>
+        </div>
+        <div class="crew-status">ON DECK</div>
+      </div>
+
+      <div class="crew-card">
+        <div class="crew-top"><span class="crew-code">OPS-02</span><span class="crew-avatar">SD</span></div>
+        <div>
+          <div class="crew-name">Sana D.</div>
+          <div class="crew-role">People &amp; Client Management</div>
+          <div class="crew-line">Handles contracts, timelines, and making sure nobody's overbooked.</div>
+        </div>
+        <div class="crew-status">ON DECK</div>
+      </div>
+
+      <div class="crew-card">
+        <div class="crew-top"><span class="crew-code">MKT-01</span><span class="crew-avatar">TJ</span></div>
+        <div>
+          <div class="crew-name">Tara J.</div>
+          <div class="crew-role">Marketing Lead</div>
+          <div class="crew-line">Runs outreach, socials, and the story of who we are and why it works.</div>
+        </div>
+        <div class="crew-status">ON DECK</div>
+      </div>
+
+      <div class="crew-card">
+        <div class="crew-top"><span class="crew-code">SUP-01</span><span class="crew-avatar">KR</span></div>
+        <div>
+          <div class="crew-name">Karan R.</div>
+          <div class="crew-role">General Support</div>
+          <div class="crew-line">The first reply when anyone — client or crew — needs a quick fix or a question answered.</div>
+        </div>
+        <div class="crew-status">ON DECK</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="process">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="sec-eyebrow">How we work</div>
+        <h2 class="sec-title">From first call to handover</h2>
+      </div>
+      <p class="sec-note">The same four steps for every client, so nothing depends on catching the right person at the right time.</p>
+    </div>
+    <div class="process-list">
+      <div class="process-row">
+        <div class="process-num">01</div>
+        <div>
+          <div class="process-title">Discovery call</div>
+          <div class="process-desc">You talk to OPS first — they scope what you actually need before anyone quotes a price.</div>
+        </div>
+      </div>
+      <div class="process-row">
+        <div class="process-num">02</div>
+        <div>
+          <div class="process-title">Scope &amp; quote</div>
+          <div class="process-desc">A fixed quote and timeline, agreed before DEV or MKT touch a single deliverable.</div>
+        </div>
+      </div>
+      <div class="process-row">
+        <div class="process-num">03</div>
+        <div>
+          <div class="process-title">Build with check-ins</div>
+          <div class="process-desc">Regular updates from whoever's building — no disappearing for three weeks and resurfacing with a surprise.</div>
+        </div>
+      </div>
+      <div class="process-row">
+        <div class="process-num">04</div>
+        <div>
+          <div class="process-title">Handover &amp; support</div>
+          <div class="process-desc">You get the finished work plus a support window, handled by your OPS contact — not a ticket queue.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer id="contact">
+  <div class="wrap">
+    <div class="cta-board">
+      <div class="sec-eyebrow">Next departure</div>
+      <h2>Got a project for us?</h2>
+      <p>Tell us what you need built, managed, or marketed — OPS will get back to you within a day.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="mailto:hello@launchdesk.example">Email the desk</a>
+        <a class="btn btn-ghost" href="#process">See how we work</a>
+      </div>
+    </div>
+    <div class="foot-grid">
+      <div>
+        <div class="logo">THE LAUNCH <span>DESK</span></div>
+        <div>A crew of 7. Freelance work, run like a company.</div>
+      </div>
+      <div class="foot-links">
+        <a href="#services">Departments</a>
+        <a href="#crew">Crew</a>
+        <a href="#process">Process</a>
+        <a href="mailto:hello@launchdesk.example">Contact</a>
+      </div>
+    </div>
+    <div class="copyright">© 2026 The Launch Desk — demo portfolio template, replace with your own crew details.</div>
+  </div>
+</footer>
+
+<script>
+  // Split-flap hero title effect
+  const finalText = "WE BUILD. WE LAUNCH.";
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ.,";
+  const container = document.getElementById('flapTitle');
+  const letters = finalText.split('');
+
+  letters.forEach((ch, i) => {
+    const el = document.createElement('span');
+    el.className = 'flap' + (ch === ' ' ? ' space' : '') + (ch === '.' ? ' amber' : '');
+    el.textContent = ch === ' ' ? '\u00A0' : ch;
+    container.appendChild(el);
+  });
+
+  const flapEls = container.querySelectorAll('.flap:not(.space)');
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!prefersReduced) {
+    flapEls.forEach((el, i) => {
+      const target = el.textContent;
+      let ticks = 0;
+      const maxTicks = 6 + Math.floor(Math.random() * 6);
+      const delay = i * 40;
+      setTimeout(() => {
+        const iv = setInterval(() => {
+          ticks++;
+          if (ticks >= maxTicks) {
+            el.textContent = target;
+            clearInterval(iv);
+          } else {
+            el.textContent = target === '.' ? '.' : chars[Math.floor(Math.random() * chars.length)];
+          }
+        }, 45);
+      }, delay);
+    });
+  }
+</script>
+
+</body>
+</html>
