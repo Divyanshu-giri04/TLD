@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Launch Desk — Small Crew, Real Ops</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="C:\Users\DELL\OneDrive\Desktop\TLD\TLD\public\css\style.css">
+  <style>
+    /* ===== NAV ===== */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(20, 24, 31, 0.94);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 0;
+    }
+
+    .logo {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+    }
+
+    .logo span { color: var(--amber); }
+
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text-dim);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      transition: color .15s;
+    }
+
+    .nav-links a:hover,
+    .nav-links a:focus-visible { color: var(--flap); }
+
+    .nav-cta {
+      padding: 8px 16px;
+      background: var(--amber);
+      color: #20160A !important;
+      border-radius: 3px;
+      font-weight: 500;
+    }
+
+    .nav-cta:hover { background: #f0ae4c !important; color: #20160A !important; }
+
+    .nav-mobile-hide { display: flex; gap: 28px; align-items: center; }
+
+    .mobile-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--flap);
+      font-size: 24px;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    @media (max-width: 860px) {
+      .nav-mobile-hide { display: none; }
+      .mobile-toggle { display: block; }
+      .nav-links.active { display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: var(--board); padding: 20px; border-bottom: 1px solid var(--line); gap: 16px; }
+    }
+
+    /* ===== HERO ===== */
+    header.hero {
+      padding: 100px 0 64px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      right: -20%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(232, 163, 61, 0.04) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      color: var(--amber);
+      text-transform: uppercase;
+      margin-bottom: 22px;
+      display: inline-flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .eyebrow::before {
+      content: '';
+      width: 22px;
+      height: 1px;
+      background: var(--amber);
+      display: inline-block;
+    }
+
+    .flap-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 24px;
+    }
+
+    .flap {
+      background: var(--flap);
+      color: var(--ink);
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: clamp(28px, 6vw, 58px);
+      line-height: 1;
+      padding: 10px 4px;
+      border-radius: 4px;
+      min-width: 0.75em;
+      text-align: center;
+      box-shadow: 0 2px 0 rgba(0,0,0,0.35), inset 0 -14px 0 rgba(0,0,0,0.06);
+      position: relative;
+    }
+
+    .flap::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      height: 1px;
+      background: rgba(0,0,0,0.18);
+    }
+
+    .flap.space { background: transparent; box-shadow: none; }
+    .flap.space::after { display: none; }
+    .flap.amber { color: var(--amber); }
+
+    .hero-sub {
+      font-size: 17px;
+      line-height: 1.7;
+      color: #C7CCD6;
+      max-width: 580px;
+      margin: 0 0 34px;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 56px;
+    }
+
+    /* ===== TICKER ===== */
+    .ticker-wrap {
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      overflow: hidden;
+      padding: 14px 0;
+      background: var(--board-2);
+      margin: 0 -32px;
+      width: calc(100% + 64px);
+    }
+
+    .ticker {
+      display: flex;
+      gap: 48px;
+      white-space: nowrap;
+      animation: scroll 26s linear infinite;
+      width: max-content;
+    }
+
+    .ticker span {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+    }
+
+    .ticker span b { color: var(--amber); font-weight: 500; }
+
+    @keyframes scroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ticker { animation: none; }
+    }
+
+    /* ===== ABOUT ===== */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 56px;
+      align-items: start;
+    }
+
+    @media (max-width: 800px) {
+      .about-grid { grid-template-columns: 1fr; gap: 32px; }
+    }
+
+    .about-copy p {
+      font-size: 16px;
+      line-height: 1.8;
+      color: #C7CCD6;
+      margin: 0 0 18px;
+    }
+
+    .about-copy strong { color: var(--flap); font-weight: 600; }
+
+    .board-panel {
+      background: var(--board-2);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 6px;
+    }
+
+    .board-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+    }
+
+    .board-row:last-child { border-bottom: none; }
+    .board-row .label { color: var(--text-dim); letter-spacing: 0.04em; }
+    .board-row .val { color: var(--amber); font-weight: 600; font-size: 16px; }
+
+    /* ===== SERVICES / DEPARTMENTS ===== */
+    .dept-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--line);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    @media (max-width: 900px) { .dept-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { .dept-grid { grid-template-columns: 1fr; } }
+
+    .dept-card {
+      background: var(--board);
+      padding: 30px 26px;
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .dept-code {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      color: var(--teal);
+    }
+
+    .dept-title { font-size: 19px; font-weight: 600; }
+    .dept-desc { font-size: 13.5px; line-height: 1.65; color: var(--text-dim); flex-grow: 1; }
+    .dept-count { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--paper-dim); border-top: 1px dashed var(--line); padding-top: 12px; }
+
+    /* ===== CREW ===== */
+    .crew-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 900px) { .crew-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 520px) { .crew-grid { grid-template-columns: 1fr; } }
+
+    .crew-card {
+      background: var(--flap);
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 22px;
+      position: relative;
+      overflow: hidden;
+      min-height: 190px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform .18s ease;
+      cursor: pointer;
+    }
+
+    .crew-card:hover { transform: translateY(-3px); }
+
+    .crew-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .crew-code {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--teal);
+      font-weight: 600;
+    }
+
+    .crew-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--ink);
+      color: var(--flap);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .crew-name { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600; margin-top: 14px; }
+    .crew-role { font-size: 12.5px; color: #556; margin-top: 2px; font-weight: 500; }
+    .crew-line { font-size: 12.5px; line-height: 1.55; color: #3A4250; margin-top: 10px; }
+
+    .crew-status {
+      margin-top: 14px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.06em;
+      color: var(--teal);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .crew-status::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--teal);
+    }
+
+    /* ===== PROCESS ===== */
+    .process-list { display: flex; flex-direction: column; }
+
+    .process-row {
+      display: grid;
+      grid-template-columns: 70px 1fr;
+      gap: 24px;
+      padding: 26px 0;
+      border-top: 1px solid var(--line);
+      align-items: start;
+    }
+
+    .process-row:last-child { border-bottom: 1px solid var(--line); }
+
+    .process-num {
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--amber);
+      font-size: 14px;
+      padding-top: 2px;
+    }
+
+    .process-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; font-family: 'Space Grotesk', sans-serif; }
+    .process-desc { color: var(--text-dim); font-size: 14px; line-height: 1.65; max-width: 640px; }
+
+    /* ===== APPLY SECTION ===== */
+    .apply-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+
+    @media (max-width: 800px) {
+      .apply-grid { grid-template-columns: 1fr; }
+    }
+
+    .apply-info h3 {
+      font-size: 22px;
+      margin-bottom: 16px;
+    }
+
+    .apply-info p {
+      color: var(--text-dim);
+      font-size: 15px;
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    .apply-benefits {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .apply-benefits li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--paper-dim);
+    }
+
+    .apply-benefits li::before {
+      content: '→';
+      color: var(--amber);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .apply-form {
+      background: var(--board-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 32px;
+    }
+
+    .apply-form h3 {
+      font-size: 18px;
+      margin-bottom: 20px;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    /* ===== FOOTER ===== */
+    footer { padding: 80px 0 40px; }
+
+    .cta-board {
+      background: var(--board-2);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 52px 40px;
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    .cta-board .sec-eyebrow { justify-content: center; display: flex; }
+    .cta-board h2 { font-size: clamp(24px, 4vw, 36px); margin-bottom: 16px; }
+    .cta-board p { color: var(--text-dim); max-width: 480px; margin: 0 auto 28px; font-size: 14.5px; line-height: 1.65; }
+
+    .cta-row {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .foot-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr;
+      gap: 40px;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    @media (max-width: 700px) {
+      .foot-grid { grid-template-columns: 1fr; gap: 28px; }
+    }
+
+    .foot-grid .logo { margin-bottom: 12px; }
+
+    .foot-col h4 {
+      font-size: 12px;
+      color: var(--flap);
+      margin-bottom: 14px;
+      font-family: 'IBM Plex Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .foot-col a {
+      display: block;
+      padding: 4px 0;
+      color: var(--text-dim);
+      font-size: 13px;
+      transition: color .15s;
+    }
+
+    .foot-col a:hover { color: var(--flap); }
+
+    .copyright {
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid var(--line);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: #586074;
+      text-align: center;
+    }
+
+    /* ===== NOTIFICATION ===== */
+    .notification {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--board-2);
+      border: 1px solid var(--success);
+      color: var(--success);
+      padding: 16px 24px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: 'IBM Plex Mono', monospace;
+      transform: translateY(120px);
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 100;
+    }
+
+    .notification.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .notification.error {
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== NAV ===== -->
+<nav>
+  <div class="wrap nav-inner">
+    <div class="logo">THE LAUNCH <span>DESK</span></div>
+    <button class="mobile-toggle" onclick="document.querySelector('.nav-links').classList.toggle('active')" aria-label="Toggle menu">☰</button>
+    <div class="nav-links nav-mobile-hide">
+      <a href="#services">Services</a>
+      <a href="#crew">Crew</a>
+      <a href="#process">Process</a>
+      <a href="#apply">Apply</a>
+      <a href="/portal" class="nav-cta">Client Portal</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">THE LAUNCH DESK · Est. 2026</div>
+    <div class="flap-row" id="flapTitle" aria-label="We build. We launch. We show you how."></div>
+    <p class="hero-sub">
+      A lean crew of seven who build, manage, and market client work end to end —
+      no scattered freelancers, one desk that answers for all of it.
+    </p>
+    <div class="hero-ctas">
+      <a class="btn btn-primary" href="#apply">Start a Project</a>
+      <a class="btn btn-ghost" href="#services">See What We Do</a>
+      <a class="btn btn-ghost" href="/portal">Client Login</a>
+    </div>
+  </div>
+  <div class="ticker-wrap">
+    <div class="ticker">
+      <span><b>DEV</b> — Web &amp; product builds</span>
+      <span><b>OPS</b> — Client &amp; people management</span>
+      <span><b>MKT</b> — Growth &amp; positioning</span>
+      <span><b>SUPPORT</b> — Ongoing client support</span>
+      <span><b>DEV</b> — Web &amp; product builds</span>
+      <span><b>OPS</b> — Client &amp; people management</span>
+      <span><b>MKT</b> — Growth &amp; positioning</span>
+      <span><b>SUPPORT</b> — Ongoing client support</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== ABOUT ===== -->
+<section id="about">
+  <div class="wrap about-grid">
+    <div class="about-copy">
+      <div class="sec-eyebrow">Who We Are</div>
+      <h2 class="sec-title" style="margin-bottom:20px;">Small crew. Real ops. No agency bloat.</h2>
+      <p>
+        We started as four freelancers splitting client work over group chats.
+        Eighteen months later we're <strong>seven people with fixed roles</strong> —
+        a lead, two developers, two people who own client relationships and HR,
+        one who runs marketing, and one who handles general support so nothing
+        falls through the cracks between desks.
+      </p>
+      <p>
+        No office, no fixed hours, no ping-pong table. Just a roster,
+        a shared calendar, and a way of working that scales past
+        "just a few of us doing favors for each other."
+      </p>
+    </div>
+    <div class="board-panel" id="statsBoard">
+      <div class="board-row"><span class="label">CREW SIZE</span><span class="val loading-data">...</span></div>
+      <div class="board-row"><span class="label">PROJECTS SHIPPED</span><span class="val loading-data">...</span></div>
+      <div class="board-row"><span class="label">REPEAT CLIENTS</span><span class="val loading-data">...</span></div>
+      <div class="board-row"><span class="label">TIME ZONES COVERED</span><span class="val loading-data">...</span></div>
+      <div class="board-row"><span class="label">STATUS</span><span class="val loading-data">...</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SERVICES ===== -->
+<section id="services">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="sec-eyebrow">Departments</div>
+        <h2 class="sec-title">Six desks, one crew</h2>
+      </div>
+      <p class="sec-note">Every project touches at least two of these — that's the point of having a crew instead of one generalist.</p>
+    </div>
+    <div class="dept-grid" id="deptGrid">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- ===== CREW ===== -->
+<section id="crew">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="sec-eyebrow">The Roster</div>
+        <h2 class="sec-title">Seven seats, seven names</h2>
+      </div>
+    </div>
+    <div class="crew-grid" id="crewGrid">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- ===== PROCESS ===== -->
+<section id="process">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="sec-eyebrow">How We Work</div>
+        <h2 class="sec-title">From first call to handover</h2>
+      </div>
+      <p class="sec-note">The same four steps for every client, so nothing depends on catching the right person at the right time.</p>
+    </div>
+    <div class="process-list">
+      <div class="process-row">
+        <div class="process-num">01</div>
+        <div>
+          <div class="process-title">Discovery Call</div>
+          <div class="process-desc">You talk to OPS first — they scope what you actually need before anyone quotes a price.</div>
+        </div>
+      </div>
+      <div class="process-row">
+        <div class="process-num">02</div>
+        <div>
+          <div class="process-title">Scope &amp; Quote</div>
+          <div class="process-desc">A fixed quote and timeline, agreed before DEV or MKT touch a single deliverable.</div>
+        </div>
+      </div>
+      <div class="process-row">
+        <div class="process-num">03</div>
+        <div>
+          <div class="process-title">Build with Check-ins</div>
+          <div class="process-desc">Regular updates from whoever's building — no disappearing for three weeks and resurfacing with a surprise.</div>
+        </div>
+      </div>
+      <div class="process-row">
+        <div class="process-num">04</div>
+        <div>
+          <div class="process-title">Handover &amp; Support</div>
+          <div class="process-desc">You get the finished work plus a support window, handled by your OPS contact — not a ticket queue.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== APPLY SECTION ===== -->
+<section id="apply">
+  <div class="wrap apply-grid">
+    <div class="apply-info">
+      <div class="sec-eyebrow">Get Started</div>
+      <h2 class="sec-title" style="margin-bottom: 20px;">Ready to launch your project?</h2>
+      <p>
+        Tell us what you need built, managed, or marketed. Fill out the form and
+        OPS will get back to you within one business day with a scope and quote.
+      </p>
+      <ul class="apply-benefits">
+        <li>Fixed quotes — no hourly surprises</li>
+        <li>Dedicated crew contact for your project</li>
+        <li>Track progress through your client portal</li>
+        <li>Post-delivery support included</li>
+        <li>API access for integrations</li>
+      </ul>
+    </div>
+    <div class="apply-form">
+      <h3>Apply for Services</h3>
+      <form id="applyForm">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" name="name" required placeholder="Your name">
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" name="email" required placeholder="you@company.com">
+        </div>
+        <div class="form-group">
+          <label>Company</label>
+          <input type="text" name="company" placeholder="Company name (optional)">
+        </div>
+        <div class="form-group">
+          <label>Project Type</label>
+          <select name="department" required>
+            <option value="">Select a service...</option>
+            <option value="DEV">Web Development</option>
+            <option value="MKT">Marketing &amp; Growth</option>
+            <option value="OPS">Operations &amp; Management</option>
+            <option value="SUPPORT">Support &amp; Maintenance</option>
+            <option value="OTHER">Other / Not Sure</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Project Description</label>
+          <textarea name="description" required placeholder="Tell us about your project, timeline, and goals..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Budget Range</label>
+          <select name="budget">
+            <option value="">Prefer not to say</option>
+            <option value="$1k-$5k">$1,000 - $5,000</option>
+            <option value="$5k-$15k">$5,000 - $15,000</option>
+            <option value="$15k-$50k">$15,000 - $50,000</option>
+            <option value="$50k+">$50,000+</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Submit Application</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer id="contact">
+  <div class="wrap">
+    <div class="cta-board">
+      <div class="sec-eyebrow">Next Departure</div>
+      <h2>Got a project for us?</h2>
+      <p>Tell us what you need built, managed, or marketed — OPS will get back to you within a day.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#apply">Start Your Project</a>
+        <a class="btn btn-ghost" href="/portal">Client Portal</a>
+        <a class="btn btn-ghost" href="mailto:hello@thelaunchdesk.io">Email the Desk</a>
+      </div>
+    </div>
+
+    <div class="foot-grid">
+      <div>
+        <div class="logo">THE LAUNCH <span>DESK</span></div>
+        <p style="font-size: 13px; line-height: 1.7; color: var(--text-dim); margin-bottom: 16px;">
+          A crew of 7. Freelance work, run like a company.
+        </p>
+      </div>
+      <div class="foot-col">
+        <h4>Navigate</h4>
+        <a href="#services">Services</a>
+        <a href="#crew">Our Crew</a>
+        <a href="#process">Process</a>
+        <a href="#apply">Apply</a>
+        <a href="/portal">Client Portal</a>
+      </div>
+      <div class="foot-col">
+        <h4>Contact</h4>
+        <a href="mailto:hello@thelaunchdesk.io">hello@thelaunchdesk.io</a>
+        <a href="/admin">Admin Login</a>
+      </div>
+    </div>
+
+    <div class="copyright">© 2026 The Launch Desk — built by the crew, for the crew.</div>
+  </div>
+</footer>
+
+<!-- ===== NOTIFICATION ===== -->
+<div class="notification" id="notification"></div>
+
+<script>
+// ===== SPLIT-FLAP HERO TITLE =====
+(function() {
+  const finalText = "WE BUILD. WE LAUNCH.";
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ.,";
+  const container = document.getElementById('flapTitle');
+
+  finalText.split('').forEach((ch) => {
+    const el = document.createElement('span');
+    el.className = 'flap' + (ch === ' ' ? ' space' : '') + (ch === '.' ? ' amber' : '');
+    el.textContent = ch === ' ' ? '\u00A0' : ch;
+    container.appendChild(el);
+  });
+
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    container.querySelectorAll('.flap:not(.space)').forEach((el, i) => {
+      const target = el.textContent;
+      let ticks = 0;
+      const maxTicks = 6 + Math.floor(Math.random() * 6);
+      setTimeout(() => {
+        const iv = setInterval(() => {
+          ticks++;
+          if (ticks >= maxTicks) {
+            el.textContent = target;
+            clearInterval(iv);
+          } else {
+            el.textContent = target === '.' ? '.' : chars[Math.floor(Math.random() * chars.length)];
+          }
+        }, 45);
+      }, i * 40);
+    });
+  }
+})();
+
+// ===== LOAD STATS FROM API =====
+async function loadSettings() {
+  try {
+    const res = await fetch('/api/admin/settings');
+    if (!res.ok) throw new Error('Failed to load');
+    const data = await res.json();
+    const statsMap = data.settings || {};
+
+    document.querySelectorAll('#statsBoard .board-row').forEach(row => {
+      const label = row.querySelector('.label')?.textContent?.trim();
+      const valEl = row.querySelector('.val');
+      if (!label || !valEl) return;
+
+      const keyMap = {
+        'CREW SIZE': 'crew_size',
+        'PROJECTS SHIPPED': 'projects_shipped',
+        'REPEAT CLIENTS': 'repeat_clients',
+        'TIME ZONES COVERED': 'timezones',
+        'STATUS': 'company_tagline'
+      };
+
+      const key = keyMap[label];
+      if (key && statsMap[key]) {
+        valEl.textContent = key === 'company_tagline' ? 'BOOKING ' + new Date().getFullYear() : statsMap[key];
+      } else {
+        // Fallback defaults
+        const defaults = {
+          'CREW SIZE': '07',
+          'PROJECTS SHIPPED': '40+',
+          'REPEAT CLIENTS': '18',
+          'TIME ZONES COVERED': '03',
+          'STATUS': 'BOOKING Q4'
+        };
+        valEl.textContent = defaults[label] || '--';
+      }
+    });
+  } catch (err) {
+    // Fallback static values
+    const fallbacks = {
+      'CREW SIZE': '07',
+      'PROJECTS SHIPPED': '40+',
+      'REPEAT CLIENTS': '18',
+      'TIME ZONES COVERED': '03',
+      'STATUS': 'BOOKING Q4'
+    };
+    document.querySelectorAll('#statsBoard .board-row').forEach(row => {
+      const label = row.querySelector('.label')?.textContent?.trim();
+      const valEl = row.querySelector('.val');
+      if (label && valEl && fallbacks[label]) {
+        valEl.textContent = fallbacks[label];
+      }
+    });
+  }
+}
+
+// ===== LOAD DEPARTMENTS =====
+async function loadDepartments() {
+  try {
+    const res = await fetch('/api/admin/settings');
+    // We'll use static data for departments with crew count
+    const deptGrid = document.getElementById('deptGrid');
+    const departments = [
+      { code: 'LEAD', title: 'Direction', desc: 'Sets scope, owns the final call on anything client-facing, and steps in wherever a desk needs backup.', count: 1 },
+      { code: 'DEV', title: 'Development', desc: 'Websites, web apps, and internal tools, built and shipped by two developers who pair on anything non-trivial.', count: 2 },
+      { code: 'OPS', title: 'Client & People Management', desc: 'Keeping clients briefed, contracts clear, and the crew workload sane. Part HR, part account management.', count: 2 },
+      { code: 'MKT', title: 'Marketing & Growth', desc: 'Positioning, outreach, and the portfolio you are reading right now — run by one person full-time.', count: 1 },
+      { code: 'SUPPORT', title: 'General Support', desc: 'The desk anyone can reach for help mid-project — questions, small fixes, and anything that does not fit neatly elsewhere.', count: 1 },
+      { code: 'HR', title: 'HR', desc: 'Collaboration and pair-programming mindset are essential. Onboarding and team culture.', count: 1 }
+    ];
+
+    deptGrid.innerHTML = departments.map(d => `
+      <div class="dept-card">
+        <div class="dept-code">${d.code}</div>
+        <div class="dept-title">${d.title}</div>
+        <div class="dept-desc">${d.desc}</div>
+        <div class="dept-count">${d.count} on desk</div>
+      </div>
+    `).join('');
+  } catch (err) {
+    console.error('Failed to load departments');
+  }
+}
+
+// ===== LOAD CREW =====
+async function loadCrew() {
+  try {
+    const res = await fetch('/api/crew');
+    const data = await res.json();
+    const crewGrid = document.getElementById('crewGrid');
+
+    if (data.crew && data.crew.length > 0) {
+      crewGrid.innerHTML = data.crew.map(m => `
+        <a href="${m.portfolio_url || '#'}" target="_blank" style="text-decoration: none;">
+          <div class="crew-card">
+            <div class="crew-top">
+              <span class="crew-code">${m.code}</span>
+              <span class="crew-avatar">${m.initials}</span>
+            </div>
+            <div>
+              <div class="crew-name">${m.name}</div>
+              <div class="crew-role">${m.role}</div>
+              <div class="crew-line">${m.bio || ''}</div>
+            </div>
+            <div class="crew-status">${m.status || 'ON DECK'}</div>
+          </div>
+        </a>
+      `).join('');
+    }
+  } catch (err) {
+    console.error('Failed to load crew');
+  }
+}
+
+// ===== APPLY FORM =====
+document.getElementById('applyForm')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const formData = new FormData(form);
+  const data = Object.fromEntries(formData);
+
+  const btn = form.querySelector('button[type="submit"]');
+  btn.textContent = 'Submitting...';
+  btn.disabled = true;
+
+  try {
+    // First register the user
+    const registerRes = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: data.name,
+        email: data.email,
+        password: 'temp-pass-' + Date.now(), // Generate temp password
+        company: data.company || ''
+      })
+    });
+
+    if (!registerRes.ok) {
+      const err = await registerRes.json();
+      throw new Error(err.error || 'Registration failed');
+    }
+
+    const regData = await registerRes.json();
+
+    // Then create the project
+    const projectRes = await fetch('/api/projects', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${regData.token}`
+      },
+      body: JSON.stringify({
+        title: `${data.department} Project - ${data.company || data.name}`,
+        description: data.description,
+        department: data.department,
+        budget: data.budget || ''
+      })
+    });
+
+    if (!projectRes.ok) {
+      const err = await projectRes.json();
+      throw new Error(err.error || 'Application failed');
+    }
+
+    const projectData = await projectRes.json();
+
+    showNotification('Application submitted! Check your email for login details. Your API key: ' + regData.api_key, 'success');
+
+    form.reset();
+  } catch (err) {
+    showNotification(err.message || 'Something went wrong. Please try again.', 'error');
+  } finally {
+    btn.textContent = 'Submit Application';
+    btn.disabled = false;
+  }
+});
+
+// ===== NOTIFICATION =====
+function showNotification(message, type = 'success') {
+  const el = document.getElementById('notification');
+  el.textContent = message;
+  el.className = 'notification ' + (type === 'error' ? 'error' : '') + ' show';
+  setTimeout(() => el.classList.remove('show'), 6000);
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  loadSettings();
+  loadDepartments();
+  loadCrew();
+});
+</script>
+</body>
+</html>
+
