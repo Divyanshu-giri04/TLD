@@ -2,6 +2,9 @@
   "name": "the-launch-desk",
   "version": "1.0.0",
   "description": "The Launch Desk - Company Website with Client Portal & Admin Panel",
+  "engines": {
+    "node": ">=18"
+  },
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

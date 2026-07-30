@@ -53,4 +53,5 @@
 - [x] Test server startup - ✅ SUCCESS
 - [x] Test crew API - ✅ SUCCESS (7 crew members returned)
 - [x] Test admin auth - ✅ SUCCESS (JWT token generated)
-
+- [
+Login: admin@thelaunchdesk.io / Admin@2026

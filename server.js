@@ -1,13 +1,18 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const dotenv = require('dotenv');
 const { getDatabase } = require('./database');
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || '0.0.0.0';
+const PORT = Number(process.env.PORT) || 3000;
+const uploadsDir = path.join(__dirname, 'uploads');
+
+fs.mkdirSync(uploadsDir, { recursive: true });
 
 // Middleware
 app.use(cors());
@@ -17,8 +22,11 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files from public directory
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Expose project-root assets for hosted pages and shared styles
+app.use(express.static(__dirname));
+
 // Serve uploads directory
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(uploadsDir));
 
 // API Routes
 const authRoutes = require('./routes/auth');
@@ -35,6 +43,15 @@ app.use('/api/projects', messageRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/crew', crewRoutes);
 app.use('/api/admin', adminRoutes);
+
+// Health checks for deployment platforms
+app.get('/health', (_req, res) => {
+  res.json({ status: 'ok', service: 'the-launch-desk' });
+});
+
+app.get('/api/health', (_req, res) => {
+  res.json({ status: 'ok', service: 'the-launch-desk' });
+});
 
 // Serve main HTML pages
 app.get('/', (req, res) => {
@@ -59,12 +76,14 @@ app.use((err, req, res, next) => {
 });
 
 // Initialize database and start server
+let server;
+
 async function startServer() {
   try {
     await getDatabase();
     console.log('  ✅ Database initialized successfully');
-    
-    app.listen(PORT, () => {
+
+    server = app.listen(PORT, HOST, () => {
       console.log(`\n  🚀 The Launch Desk server running`);
       console.log(`  📡 http://localhost:${PORT}`);
       console.log(`  📊 Admin Panel: http://localhost:${PORT}/admin`);
@@ -76,6 +95,18 @@ async function startServer() {
     process.exit(1);
   }
 }
+
+function shutdown(signal) {
+  console.log(`\nReceived ${signal}. Shutting down gracefully...`);
+  if (server) {
+    server.close(() => process.exit(0));
+  } else {
+    process.exit(0);
+  }
+}
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
 
 startServer();
 
