@@ -39,7 +39,6 @@ const adminRoutes = require('./routes/admin');
 app.use('/api/auth', authRoutes);
 app.use('/api/clients', clientRoutes);
 app.use('/api/projects', projectRoutes);
-app.use('/api/projects', messageRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/crew', crewRoutes);
 app.use('/api/admin', adminRoutes);

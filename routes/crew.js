@@ -89,12 +89,20 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
     prepare(`
       INSERT INTO crew_members (name, role, code, initials, department, bio, portfolio_url, email, password) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(name, role, code, initials, department, bio || '', portfolio_url || '', email || '', hashedPass);
+    `).run(
+      String(name), String(role), String(code), String(initials),
+      String(department), String(bio || ''), String(portfolio_url || ''),
+      String(email || ''), hashedPass
+    );
 
     const member = prepare('SELECT id, name, role, code, initials, department, bio, portfolio_url, status, email, created_at FROM crew_members ORDER BY id DESC LIMIT 1').get();
     res.status(201).json({ message: 'Crew member added', member });
   } catch (err) {
-    res.status(500).json({ error: 'Server error' });
+    console.error('Add crew error:', err);
+    if (err.message && err.message.includes('UNIQUE')) {
+      return res.status(409).json({ error: 'Crew code already exists' });
+    }
+    res.status(500).json({ error: err.message || 'Server error' });
   }
 });
 
@@ -133,7 +141,8 @@ router.put('/:id', verifyToken, requireAdmin, async (req, res) => {
     const member = prepare('SELECT id, name, role, code, initials, department, bio, portfolio_url, status, email, created_at FROM crew_members WHERE id = ?').get(req.params.id);
     res.json({ message: 'Crew member updated', member });
   } catch (err) {
-    res.status(500).json({ error: 'Server error' });
+    console.error('Update crew error:', err);
+    res.status(500).json({ error: err.message || 'Server error' });
   }
 });
 
@@ -156,7 +165,8 @@ router.put('/:id/password', verifyToken, requireAdmin, async (req, res) => {
 
     res.json({ message: 'Password updated successfully' });
   } catch (err) {
-    res.status(500).json({ error: 'Server error' });
+    console.error('Crew password error:', err);
+    res.status(500).json({ error: err.message || 'Server error' });
   }
 });
 
@@ -172,7 +182,8 @@ router.delete('/:id', verifyToken, requireAdmin, async (req, res) => {
 
     res.json({ message: 'Crew member deleted' });
   } catch (err) {
-    res.status(500).json({ error: 'Server error' });
+    console.error('Delete crew error:', err);
+    res.status(500).json({ error: err.message || 'Server error' });
   }
 });
 
@@ -234,9 +245,8 @@ router.get('/projects', verifyToken, async (req, res) => {
     res.json({ projects: assigned.map(p => ({...p, files: p.files ? JSON.parse(p.files) : []})) });
   } catch (err) {
     console.error('Crew projects error:', err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: err.message || 'Server error' });
   }
 });
 
 module.exports = router;
-

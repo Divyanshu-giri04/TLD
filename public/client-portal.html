@@ -9,20 +9,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --board: #14181F;
-      --board-2: #1B212B;
-      --flap: #EFE9DD;
-      --ink: #1B2430;
-      --amber: #E8A33D;
-      --teal: #3E7C82;
-      --line: #333B48;
-      --paper-dim: #B9B2A2;
-      --text-dim: #8B93A3;
-      --success: #5FD87A;
-      --danger: #E85A5A;
-      --warning: #F0C94D;
-      --radius: 6px;
-      --transition: 0.2s ease;
+      --board: #14181F; --board-2: #1B212B; --flap: #EFE9DD; --ink: #1B2430;
+      --amber: #E8A33D; --teal: #3E7C82; --line: #333B48; --paper-dim: #B9B2A2;
+      --text-dim: #8B93A3; --success: #5FD87A; --danger: #E85A5A; --warning: #F0C94D;
+      --radius: 6px; --transition: 0.2s ease;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: var(--board); color: var(--flap); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; line-height: 1.6; }
@@ -65,9 +55,6 @@
     .auth-tab.active { background: var(--board-2); color: var(--flap); }
     .auth-form { display: none; }
     .auth-form.active { display: block; }
-    .auth-form .form-group { margin-bottom: 16px; }
-    .auth-form .form-group label { font-size: 10px; }
-    .auth-form .btn { width: 100%; justify-content: center; margin-top: 8px; }
     .dashboard { display: none; }
     .dashboard.active { display: block; }
     .portal-nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid var(--line); margin-bottom: 32px; }
@@ -86,7 +73,6 @@
     .stat-card .label { font-size: 11px; color: var(--text-dim); font-family: 'IBM Plex Mono',monospace; margin-top: 4px; }
     .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
     .section-header h2 { font-size: 18px; }
-    .section-header .btn { font-size: 11px; padding: 8px 14px; }
     .project-card { background: var(--board-2); border: 1px solid var(--line); border-radius: 6px; padding: 20px; margin-bottom: 14px; transition: border-color .15s; cursor: pointer; }
     .project-card:hover { border-color: var(--teal); }
     .project-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
@@ -122,6 +108,8 @@
   </style>
 </head>
 <body>
+
+<!-- ===== AUTH SCREEN ===== -->
 <div class="auth-screen" id="authScreen">
   <div class="auth-box">
     <div class="logo">THE LAUNCH <span>DESK</span></div>
@@ -130,133 +118,35 @@
       <button class="auth-tab active" data-tab="login">Login</button>
       <button class="auth-tab" data-tab="register">Register</button>
     </div>
+
     <form class="auth-form active" id="loginForm">
-      <div class="form-group"><label>Email</label><input type="email" name="email" required placeholder="you@company.com"></div>
-      <div class="form-group"><label>Password</label><input type="password" name="password" required placeholder="Enter password"></div>
+      <div class="form-group">
+        <label for="loginEmail">Email</label>
+        <input type="email" id="loginEmail" name="email" required placeholder="you@company.com">
+      </div>
+      <div class="form-group">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" name="password" required placeholder="Enter password">
+      </div>
       <button type="submit" class="btn btn-primary">Login to Portal</button>
     </form>
+
     <form class="auth-form" id="registerForm">
-      <div class="form-group"><label>Full Name</label><input type="text" name="name" required placeholder="Your name"></div>
-      <div class="form-group"><label>Email</label><input type="email" name="email" required placeholder="you@company.com"></div>
-      <div class="form-group"><label>Password (min 6 chars)</label><input type="password" name="password" required minlength="6" placeholder="Create a password"></div>
-      <div class="form-group"><label>Company</label><input type="text" name="company" placeholder="Company name (optional)"></div>
-      <button type="submit" class="btn btn-primary">Create Account</button>
-    </form>
-    <div id="authError" style="display:none;" class="alert alert-error"></div>
-</div>
-<div class="dashboard" id="dashboard">
-  <div class="portal-wrap">
-    <div class="portal-nav">
-      <div class="logo">THE LAUNCH <span>DESK</span> <span style="font-size:11px;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;">PORTAL</span></div>
-      <div class="portal-nav-right">
-        <span class="user-info" id="userInfo">Loading...</span>
-        <button class="logout-btn" onclick="logout()">Logout</button>
-      </div>
-    <div class="portal-greeting">
-      <h1>Welcome back, <span id="userName">Client</span></h1>
-      <p id="userDetails">Track your projects, send messages, and manage your work.</p>
-    </div>
-    <div class="card" style="margin-bottom:24px;padding:16px 20px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;">Your API Key</span>
-        <button class="btn btn-ghost btn-sm" onclick="generateNewKey()">Generate New Key</button>
-      </div>
-      <div class="api-key-box" id="apiKeyDisplay">
-        <span id="apiKeyValue">Loading...</span>
-        <button class="copy-btn" onclick="copyApiKey()">Copy</button>
-      </div>
-    <div class="portal-stats" id="portalStats">
-      <div class="stat-card"><div class="num" id="statProjects">0</div><div class="label">Total Projects</div>
-      <div class="stat-card"><div class="num" id="statActive">0</div><div class="label">Active</div>
-      <div class="stat-card"><div class="num" id="statCompleted">0</div><div class="label">Completed</div>
-      <div class="stat-card"><div class="num" id="statMessages">0</div><div class="label">Unread</div>
-    </div>
-    <div class="section-header">
-      <h2>Your Projects</h2>
-      <button class="btn btn-primary btn-sm" onclick="openNewProjectModal()">+ New Project</button>
-    </div>
-    <div id="projectsList">
-      <div class="empty-state">
-        <div class="icon">📋</div>
-        <h3>No projects yet</h3>
-        <p>Apply for your first project and track it here in real time.</p>
-        <button class="btn btn-primary" onclick="openNewProjectModal()">Start Your First Project</button>
-      </div>
-  </div>
-<div class="modal-overlay" id="projectModal">
-  <div class="modal">
-    <div class="modal-header"><h2 id="modalProjectTitle">Project Details</h2><button class="modal-close" onclick="closeModal('projectModal')">&times;</button></div>
-    <div>
-      <div class="form-group"><label>Status</label><span id="modalStatus" class="pill"></span></div>
-      <div class="form-group"><label>Department</label><span id="modalDepartment" style="color:var(--flap);"></span></div>
-      <div class="form-group"><label>Description</label><p id="modalDescription" style="font-size:14px;color:var(--text-dim);line-height:1.6;"></p></div>
-      <div class="form-group"><label>Assigned Crew</label><span id="modalCrew" style="color:var(--flap);"></span></div>
-      <div class="form-group"><label>Timeline</label><span id="modalTimeline" style="color:var(--flap);"></span></div>
-      <div class="form-group"><label>Budget</label><span id="modalBudget" style="color:var(--amber);"></span></div>
-      <div class="progress-bar" style="margin:20px 0;"><div class="fill" id="modalProgress" style="width:0%;"></div>
-      <h3 style="font-size:16px;margin-bottom:12px;margin-top:24px;">Messages</h3>
-      <div class="modal-messages" id="modalMessages"><div class="loading"><div class="spinner"></div></div>
-      <div class="msg-input-area">
-        <input type="text" id="msgInput" placeholder="Type your message..." onkeydown="if(event.key==='Enter') sendMessage()">
-        <button class="btn btn-primary btn-sm" onclick="sendMessage()">Send</button>
-      </div>
-  </div>
-<div class="modal-overlay" id="newProjectModal">
-  <div class="modal" style="max-width:520px;">
-    <div class="modal-header"><h2>New Project</h2><button class="modal-close" onclick="closeModal('newProjectModal')">&times;</button></div>
-    <form id="newProjectForm">
-      <div class="form-group"><label>Project Title</label><input type="text" name="title" required placeholder="e.g. Company Website Redesign"></div>
       <div class="form-group">
-        <label>Department</label>
-        <select name="department" required>
-          <option value="">Select department...</option>
-          <option value="DEV">Development</option>
-          <option value="MKT">Marketing &amp; Growth</option>
-          <option value="OPS">Operations</option>
-          <option value="SUPPORT">Support</option>
-          <option value="OTHER">Other</option>
-        </select>
-      </div>
-      <div class="form-group"><label>Description</label><textarea name="description" required placeholder="Describe what you need built or done..."></textarea></div>
-      <div class="form-group">
-        <label>Budget Range</label>
-        <select name="budget">
-          <option value="">Not specified</option>
-          <option value="$1k-$5k">$1,000 - $5,000</option>
-          <option value="$5k-$15k">$5,000 - $15,000</option>
-          <option value="$15k-$50k">$15,000 - $50,000</option>
-          <option value="$50k+">$50,000+</option>
-        </select>
-      </div>
-      <div class="form-group"><label>Timeline</label><input type="text" name="timeline" placeholder="e.g. 2-3 months"></div>
-      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Submit Project</button>
-    </form>
-  </div>
-<script>
-let token=null,currentUser=null,currentProjectId=null;
-document.querySelectorAll('.auth-tab').forEach(tab=>{tab.addEventListener('click',()=>{document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.auth-form').forEach(f=>f.classList.remove('active'));tab.classList.add('active');document.getElementById(tab.dataset.tab+'Form').classList.add('active');document.getElementById('authError').style.display='none'})});
-document.getElementById('loginForm').addEventListener('submit',async e=>{e.preventDefault();const data=Object.fromEntries(new FormData(e.target));try{const res=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});const result=await res.json();if(!res.ok)throw new Error(result.error);token=result.token;currentUser=result.user;localStorage.setItem('tld_token',token);localStorage.setItem('tld_user',JSON.stringify(result.user));if(result.api_keys&&result.api_keys.length>0)localStorage.setItem('tld_api_key',result.api_keys[0].key);showDashboard()}catch(err){showAuthError(err.message)}});
-document.getElementById('registerForm').addEventListener('submit',async e=>{e.preventDefault();const data=Object.fromEntries(new FormData(e.target));try{const res=await fetch('/api/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});const result=await res.json();if(!res.ok)throw new Error(result.error);token=result.token;currentUser=result.user;localStorage.setItem('tld_token',token);localStorage.setItem('tld_user',JSON.stringify(result.user));if(result.api_key)localStorage.setItem('tld_api_key',result.api_key);showDashboard()}catch(err){showAuthError(err.message)}});
-function checkSession(){const t=localStorage.getItem('tld_token'),u=localStorage.getItem('tld_user');if(t&&u){token=t;currentUser=JSON.parse(u);showDashboard();return!0}return!1}
-async function showDashboard(){document.getElementById('authScreen').style.display='none';document.getElementById('dashboard').classList.add('active');document.getElementById('userName').textContent=currentUser.name||'Client';document.getElementById('userInfo').textContent=currentUser.email||'';document.getElementById('userDetails').textContent=(currentUser.company?currentUser.company+' &middot; ':'')+'Track your projects, send messages, and manage your work.';const ak=localStorage.getItem('tld_api_key');if(ak)document.getElementById('apiKeyValue').textContent=ak;else document.getElementById('apiKeyDisplay').style.display='none';await loadProjects()}
-async function loadProjects(){try{const h=getAuthHeaders(),res=await fetch('/api/projects',{headers:h}),data=await res.json();if(!res.ok)throw new Error(data.error);renderProjects(data.projects||[]);updateStats(data.projects||[])}catch(err){console.error(err)}}
-function renderProjects(p){const c=document.getElementById('projectsList');if(!p.length){c.innerHTML='<div class="empty-state"><div class="icon">📋</div><h3>No projects yet</h3><p>Apply for your first project and track it here in real time.</p><button class="btn btn-primary" onclick="openNewProjectModal()">Start Your First Project</button></div>';return}
-c.innerHTML=p.map(p=>{const pr=getProgress(p.status),sc=getStatusClass(p.status);return'<div class="project-card" onclick="openProjectModal('+p.id+')"><div class="project-card-header"><div class="project-card-title">'+p.title+'</div><span class="pill '+sc+'">'+formatStatus(p.status)+'</span></div><div class="project-card-desc">'+(p.description?p.description.substring(0,150)+(p.description.length>150?'...':''):'No description')+'</div><div class="progress-bar"><div class="fill'+(pr>=100?' complete':pr>=50?' half':'')+'" style="width:'+pr+'%;"></div><div class="project-card-meta"><span>📁 '+(p.department||'General')+'</span><span>📅 '+new Date(p.created_at).toLocaleDateString()+'</span>'+(p.budget?'<span>💰 '+p.budget+'</span>':'')+'</div>'}).join('')}
-function updateStats(p){document.getElementById('statProjects').textContent=p.length;document.getElementById('statActive').textContent=p.filter(p=>['applied','discovery','in_progress'].includes(p.status)).length;document.getElementById('statCompleted').textContent=p.filter(p=>p.status==='completed').length;loadUnreadCount()}
-async function loadUnreadCount(){try{const h=getAuthHeaders(),res=await fetch('/api/messages/unread',{headers:h}),data=await res.json();document.getElementById('statMessages').textContent=data.unread_count||0}catch(err){document.getElementById('statMessages').textContent='0'}}
-        <input type="text" name="name" required placeholder="Your name">
+        <label for="regName">Full Name</label>
+        <input type="text" id="regName" name="name" required placeholder="Your name">
       </div>
       <div class="form-group">
-        <label>Email</label>
-        <input type="email" name="email" required placeholder="you@company.com">
+        <label for="regEmail">Email</label>
+        <input type="email" id="regEmail" name="email" required placeholder="you@company.com">
       </div>
       <div class="form-group">
-        <label>Password (min 6 chars)</label>
-        <input type="password" name="password" required minlength="6" placeholder="Create a password">
+        <label for="regPassword">Password (min 6 chars)</label>
+        <input type="password" id="regPassword" name="password" required minlength="6" placeholder="Create a password">
       </div>
       <div class="form-group">
-        <label>Company</label>
-        <input type="text" name="company" placeholder="Company name (optional)">
+        <label for="regCompany">Company</label>
+        <input type="text" id="regCompany" name="company" placeholder="Company name (optional)">
       </div>
       <button type="submit" class="btn btn-primary">Create Account</button>
     </form>
@@ -268,7 +158,7 @@ async function loadUnreadCount(){try{const h=getAuthHeaders(),res=await fetch('/
 <!-- ===== DASHBOARD ===== -->
 <div class="dashboard" id="dashboard">
   <div class="portal-wrap">
-    <!-- Portal Nav -->
+
     <div class="portal-nav">
       <div class="logo">THE LAUNCH <span>DESK</span> <span style="font-size: 11px; color: var(--text-dim); font-family: 'IBM Plex Mono', monospace;">PORTAL</span></div>
       <div class="portal-nav-right">
@@ -277,13 +167,11 @@ async function loadUnreadCount(){try{const h=getAuthHeaders(),res=await fetch('/
       </div>
     </div>
 
-    <!-- Greeting -->
     <div class="portal-greeting">
       <h1>Welcome back, <span id="userName">Client</span></h1>
       <p id="userDetails">Track your projects, send messages, and manage your work.</p>
     </div>
 
-    <!-- API Key Display -->
     <div class="card" style="margin-bottom: 24px; padding: 16px 20px;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
         <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em;">Your API Key</span>
@@ -295,8 +183,7 @@ async function loadUnreadCount(){try{const h=getAuthHeaders(),res=await fetch('/
       </div>
     </div>
 
-    <!-- Stats -->
-    <div class="portal-stats" id="portalStats">
+    <div class="portal-stats">
       <div class="stat-card">
         <div class="num" id="statProjects">0</div>
         <div class="label">Total Projects</div>
@@ -315,7 +202,6 @@ async function loadUnreadCount(){try{const h=getAuthHeaders(),res=await fetch('/
       </div>
     </div>
 
-    <!-- Projects Section -->
     <div class="section-header">
       <h2>Your Projects</h2>
       <button class="btn btn-primary btn-sm" onclick="openNewProjectModal()">+ New Project</button>
@@ -328,6 +214,7 @@ async function loadUnreadCount(){try{const h=getAuthHeaders(),res=await fetch('/
         <button class="btn btn-primary" onclick="openNewProjectModal()">Start Your First Project</button>
       </div>
     </div>
+
   </div>
 </div>
 
@@ -370,7 +257,7 @@ async function loadUnreadCount(){try{const h=getAuthHeaders(),res=await fetch('/
 
       <h3 style="font-size: 16px; margin-bottom: 12px; margin-top: 24px;">Messages</h3>
       <div class="modal-messages" id="modalMessages">
-        <div class="loading"><div class="spinner"></div></div>
+        <div style="text-align:center;color:var(--text-dim);font-size:13px;padding:20px;">Loading messages...</div>
       </div>
       <div class="msg-input-area">
         <input type="text" id="msgInput" placeholder="Type your message..." onkeydown="if(event.key==='Enter') sendMessage()">
@@ -387,14 +274,14 @@ async function loadUnreadCount(){try{const h=getAuthHeaders(),res=await fetch('/
       <h2>New Project</h2>
       <button class="modal-close" onclick="closeModal('newProjectModal')">&times;</button>
     </div>
-    <form class="new-project-form" id="newProjectForm">
+    <form id="newProjectForm">
       <div class="form-group">
-        <label>Project Title</label>
-        <input type="text" name="title" required placeholder="e.g. Company Website Redesign">
+        <label for="projectTitle">Project Title</label>
+        <input type="text" id="projectTitle" name="title" required placeholder="e.g. Company Website Redesign">
       </div>
       <div class="form-group">
-        <label>Department</label>
-        <select name="department" required>
+        <label for="projectDept">Department</label>
+        <select id="projectDept" name="department" required>
           <option value="">Select department...</option>
           <option value="DEV">Development</option>
           <option value="MKT">Marketing &amp; Growth</option>
@@ -404,12 +291,12 @@ async function loadUnreadCount(){try{const h=getAuthHeaders(),res=await fetch('/
         </select>
       </div>
       <div class="form-group">
-        <label>Description</label>
-        <textarea name="description" required placeholder="Describe what you need built or done..."></textarea>
+        <label for="projectDesc">Description</label>
+        <textarea id="projectDesc" name="description" required placeholder="Describe what you need built or done..."></textarea>
       </div>
       <div class="form-group">
-        <label>Budget Range</label>
-        <select name="budget">
+        <label for="projectBudget">Budget Range</label>
+        <select id="projectBudget" name="budget">
           <option value="">Not specified</option>
           <option value="$1k-$5k">$1,000 - $5,000</option>
           <option value="$5k-$15k">$5,000 - $15,000</option>
@@ -418,13 +305,16 @@ async function loadUnreadCount(){try{const h=getAuthHeaders(),res=await fetch('/
         </select>
       </div>
       <div class="form-group">
-        <label>Timeline</label>
-        <input type="text" name="timeline" placeholder="e.g. 2-3 months">
+        <label for="projectTimeline">Timeline</label>
+        <input type="text" id="projectTimeline" name="timeline" placeholder="e.g. 2-3 months">
       </div>
       <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Submit Project</button>
     </form>
   </div>
 </div>
+
+<!-- ===== NOTIFICATION ===== -->
+<div class="notification" id="notification"></div>
 
 <script>
 let token = null;
@@ -446,73 +336,52 @@ document.querySelectorAll('.auth-tab').forEach(tab => {
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const data = Object.fromEntries(new FormData(e.target));
-
   try {
-    const res = await fetch(getApiUrl('/api/auth/login'), {
+    const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
-
     const text = await res.text();
     let result = {};
-    if (text) {
-      try { result = JSON.parse(text); } catch (_) { result = { error: 'Server returned an invalid response.' }; }
-    }
-
+    if (text) { try { result = JSON.parse(text); } catch (_) { result = { error: 'Server returned an invalid response.' }; } }
     if (!res.ok) throw new Error(result.error || 'Unable to sign in right now.');
-
     token = result.token;
     currentUser = result.user;
     localStorage.setItem('tld_token', token);
     localStorage.setItem('tld_user', JSON.stringify(result.user));
-    if (result.api_keys && result.api_keys.length > 0) {
-      localStorage.setItem('tld_api_key', result.api_keys[0].key);
-    }
+    if (result.api_keys && result.api_keys.length > 0) { localStorage.setItem('tld_api_key', result.api_keys[0].key); }
     showDashboard();
-  } catch (err) {
-    showAuthError(err.message);
-  }
+  } catch (err) { showAuthError(err.message); }
 });
 
 // ===== REGISTER =====
 document.getElementById('registerForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const data = Object.fromEntries(new FormData(e.target));
-
   try {
-    const res = await fetch(getApiUrl('/api/auth/register'), {
+    const res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
-
     const text = await res.text();
     let result = {};
-    if (text) {
-      try { result = JSON.parse(text); } catch (_) { result = { error: 'Server returned an invalid response.' }; }
-    }
-
+    if (text) { try { result = JSON.parse(text); } catch (_) { result = { error: 'Server returned an invalid response.' }; } }
     if (!res.ok) throw new Error(result.error || 'Unable to create account right now.');
-
     token = result.token;
     currentUser = result.user;
     localStorage.setItem('tld_token', token);
     localStorage.setItem('tld_user', JSON.stringify(result.user));
-    if (result.api_key) {
-      localStorage.setItem('tld_api_key', result.api_key);
-    }
+    if (result.api_key) { localStorage.setItem('tld_api_key', result.api_key); }
     showDashboard();
-  } catch (err) {
-    showAuthError(err.message);
-  }
+  } catch (err) { showAuthError(err.message); }
 });
 
-// ===== CHECK SESSION =====
+// ===== SESSION CHECK =====
 function checkSession() {
   const savedToken = localStorage.getItem('tld_token');
   const savedUser = localStorage.getItem('tld_user');
-
   if (savedToken && savedUser) {
     token = savedToken;
     currentUser = JSON.parse(savedUser);
@@ -526,20 +395,12 @@ function checkSession() {
 async function showDashboard() {
   document.getElementById('authScreen').style.display = 'none';
   document.getElementById('dashboard').classList.add('active');
-
   document.getElementById('userName').textContent = currentUser.name || 'Client';
   document.getElementById('userInfo').textContent = currentUser.email || '';
-  document.getElementById('userDetails').textContent =
-    (currentUser.company ? currentUser.company + ' · ' : '') + 'Track your projects, send messages, and manage your work.';
-
-  // Show API key
+  document.getElementById('userDetails').textContent = (currentUser.company ? currentUser.company + ' · ' : '') + 'Track your projects, send messages, and manage your work.';
   const apiKey = localStorage.getItem('tld_api_key');
-  if (apiKey) {
-    document.getElementById('apiKeyValue').textContent = apiKey;
-  } else {
-    document.getElementById('apiKeyDisplay').style.display = 'none';
-  }
-
+  if (apiKey) { document.getElementById('apiKeyValue').textContent = apiKey; }
+  else { document.getElementById('apiKeyDisplay').style.display = 'none'; }
   await loadProjects();
 }
 
@@ -550,160 +411,70 @@ async function loadProjects() {
     const res = await fetch('/api/projects', { headers });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error);
-
-    const projects = data.projects || [];
-    renderProjects(projects);
-    updateStats(projects);
-  } catch (err) {
-    console.error('Load projects error:', err);
-  }
+    renderProjects(data.projects || []);
+    updateStats(data.projects || []);
+  } catch (err) { console.error('Load projects error:', err); }
 }
 
+// ===== RENDER PROJECTS =====
 function renderProjects(projects) {
   const container = document.getElementById('projectsList');
-
   if (projects.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <div class="icon">📋</div>
-        <h3>No projects yet</h3>
-        <p>Apply for your first project and track it here in real time.</p>
-        <button class="btn btn-primary" onclick="openNewProjectModal()">Start Your First Project</button>
-      </div>
-    `;
+    container.innerHTML = '<div class="empty-state"><div class="icon">📋</div><h3>No projects yet</h3><p>Apply for your first project and track it here in real time.</p><button class="btn btn-primary" onclick="openNewProjectModal()">Start Your First Project</button></div>';
     return;
   }
-
   container.innerHTML = projects.map(p => {
     const progress = getProgress(p.status);
     const statusClass = getStatusClass(p.status);
-    return `
-      <div class="project-card" onclick="openProjectModal(${p.id})">
-        <div class="project-card-header">
-          <div class="project-card-title">${p.title}</div>
-          <span class="pill ${statusClass}">${formatStatus(p.status)}</span>
-        </div>
-        <div class="project-card-desc">${p.description ? p.description.substring(0, 150) + (p.description.length > 150 ? '...' : '') : 'No description'}</div>
-        <div class="progress-bar"><div class="fill ${progress >= 100 ? 'complete' : progress >= 50 ? 'half' : ''}" style="width: ${progress}%;"></div></div>
-        <div class="project-card-meta">
-          <span>📁 ${p.department || 'General'}</span>
-          <span>📅 ${new Date(p.created_at).toLocaleDateString()}</span>
-          ${p.budget ? `<span>💰 ${p.budget}</span>` : ''}
-        </div>
-      </div>
-    `;
+    return '<div class="project-card" onclick="openProjectModal(' + p.id + ')">' +
+      '<div class="project-card-header"><div class="project-card-title">' + escapeHtml(p.title) + '</div><span class="pill ' + statusClass + '">' + formatStatus(p.status) + '</span></div>' +
+      '<div class="project-card-desc">' + (p.description ? escapeHtml(p.description.substring(0, 150)) + (p.description.length > 150 ? '...' : '') : 'No description') + '</div>' +
+      '<div class="progress-bar"><div class="fill ' + (progress >= 100 ? 'complete' : progress >= 50 ? 'half' : '') + '" style="width:' + progress + '%;"></div></div>' +
+      '<div class="project-card-meta"><span>📁 ' + (p.department || 'General') + '</span><span>📅 ' + new Date(p.created_at).toLocaleDateString() + '</span>' + (p.budget ? '<span>💰 ' + p.budget + '</span>' : '') + '</div>' +
+      '</div>';
   }).join('');
 }
 
+// ===== UPDATE STATS =====
 function updateStats(projects) {
-  const total = projects.length;
-  const active = projects.filter(p => ['applied', 'discovery', 'in_progress'].includes(p.status)).length;
-  const completed = projects.filter(p => p.status === 'completed').length;
-
-  document.getElementById('statProjects').textContent = total;
-  document.getElementById('statActive').textContent = active;
-  document.getElementById('statCompleted').textContent = completed;
-
-  // Load unread count
-  loadUnreadCount();
+  document.getElementById('statProjects').textContent = projects.length;
+  document.getElementById('statActive').textContent = projects.filter(p => p.status === 'applied' || p.status === 'discovery' || p.status === 'in_progress' || p.status === 'review').length;
+  document.getElementById('statCompleted').textContent = projects.filter(p => p.status === 'completed').length;
+  document.getElementById('statMessages').textContent = '--';
 }
 
-async function loadUnreadCount() {
-  try {
-    const headers = getAuthHeaders();
-    const res = await fetch('/api/messages/unread', { headers });
-    const data = await res.json();
-    document.getElementById('statMessages').textContent = data.unread_count || 0;
-  } catch (err) {
-    document.getElementById('statMessages').textContent = '0';
-  }
+// ===== GET AUTH HEADERS =====
+function getAuthHeaders() {
+  return { 'Authorization': 'Bearer ' + token };
 }
 
-// ===== PROJECT MODAL =====
-async function openProjectModal(projectId) {
-  currentProjectId = projectId;
-  document.getElementById('projectModal').classList.add('active');
-
-  try {
-    const headers = getAuthHeaders();
-    const res = await fetch(`/api/projects/${projectId}`, { headers });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error);
-
-    const p = data.project;
-    document.getElementById('modalProjectTitle').textContent = p.title;
-    document.getElementById('modalStatus').textContent = formatStatus(p.status);
-    document.getElementById('modalStatus').className = 'pill ' + getStatusClass(p.status);
-    document.getElementById('modalDepartment').textContent = p.department || 'General';
-    document.getElementById('modalDescription').textContent = p.description || 'No description';
-    document.getElementById('modalCrew').textContent = p.assigned_crew || 'Not yet assigned';
-    document.getElementById('modalTimeline').textContent = p.timeline || 'TBD';
-    document.getElementById('modalBudget').textContent = p.budget || 'Not specified';
-    document.getElementById('modalProgress').style.width = getProgress(p.status) + '%';
-
-    await loadMessages(projectId);
-  } catch (err) {
-    console.error('Load project error:', err);
-  }
+// ===== GET PROGRESS FROM STATUS =====
+function getProgress(status) {
+  const map = { 'applied': 15, 'discovery': 30, 'in_progress': 60, 'review': 85, 'completed': 100, 'cancelled': 100 };
+  return map[status] || 0;
 }
 
-// ===== MESSAGES =====
-async function loadMessages(projectId) {
-  try {
-    const headers = getAuthHeaders();
-    const res = await fetch(`/api/projects/${projectId}/messages`, { headers });
-    const data = await res.json();
-
-    const container = document.getElementById('modalMessages');
-    const messages = data.messages || [];
-
-    if (messages.length === 0) {
-      container.innerHTML = '<p style="text-align:center;color:var(--text-dim);font-size:13px;padding:20px;">No messages yet. Start the conversation!</p>';
-      return;
-    }
-
-    container.innerHTML = messages.map(m => `
-      <div class="msg ${m.sender_role}">
-        <div>${m.content}</div>
-        <div class="msg-meta">
-          <span>${m.sender_name}</span>
-          <span>${new Date(m.created_at).toLocaleString()}</span>
-        </div>
-      </div>
-    `).join('');
-
-    container.scrollTop = container.scrollHeight;
-  } catch (err) {
-    console.error('Load messages error:', err);
-  }
+// ===== FORMAT STATUS =====
+function formatStatus(status) {
+  const map = { 'applied': 'APPLIED', 'discovery': 'DISCOVERY', 'in_progress': 'IN PROGRESS', 'review': 'REVIEW', 'completed': 'COMPLETED', 'cancelled': 'CANCELLED' };
+  return map[status] || (status ? status.toUpperCase() : 'UNKNOWN');
 }
 
-async function sendMessage() {
-  const input = document.getElementById('msgInput');
-  const content = input.value.trim();
-  if (!content || !currentProjectId) return;
-
-  try {
-    const headers = getAuthHeaders();
-    headers['Content-Type'] = 'application/json';
-
-    const res = await fetch(`/api/projects/${currentProjectId}/messages`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ content })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error);
-
-    input.value = '';
-    await loadMessages(currentProjectId);
-    loadUnreadCount();
-  } catch (err) {
-    console.error('Send message error:', err);
-  }
+// ===== GET STATUS CSS CLASS =====
+function getStatusClass(status) {
+  const map = { 'applied': 'pill-amber', 'discovery': 'pill-warning', 'in_progress': '', 'review': 'pill-warning', 'completed': 'pill-success', 'cancelled': 'pill-danger' };
+  return map[status] || '';
 }
 
-// ===== NEW PROJECT =====
+// ===== ESCAPE HTML =====
+function escapeHtml(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ===== NEW PROJECT MODAL =====
 function openNewProjectModal() {
   document.getElementById('newProjectModal').classList.add('active');
 }
@@ -711,110 +482,144 @@ function openNewProjectModal() {
 document.getElementById('newProjectForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const data = Object.fromEntries(new FormData(e.target));
-
   try {
     const headers = getAuthHeaders();
     headers['Content-Type'] = 'application/json';
-
     const res = await fetch('/api/projects', {
       method: 'POST',
-      headers,
+      headers: headers,
       body: JSON.stringify(data)
     });
     const result = await res.json();
-    if (!res.ok) throw new Error(result.error);
-
+    if (!res.ok) throw new Error(result.error || 'Failed to create project');
     closeModal('newProjectModal');
     document.getElementById('newProjectForm').reset();
-    await loadProjects();
     showNotification('Project submitted successfully!', 'success');
+    await loadProjects();
   } catch (err) {
     showNotification(err.message, 'error');
   }
 });
 
-// ===== GENERATE NEW API KEY =====
+// ===== PROJECT DETAIL MODAL =====
+async function openProjectModal(projectId) {
+  currentProjectId = projectId;
+  try {
+    const headers = getAuthHeaders();
+    const res = await fetch('/api/projects/' + projectId, { headers });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    const p = data.project;
+    document.getElementById('modalProjectTitle').textContent = p.title;
+    document.getElementById('modalStatus').textContent = formatStatus(p.status);
+    document.getElementById('modalStatus').className = 'pill ' + getStatusClass(p.status);
+    document.getElementById('modalDepartment').textContent = p.department || 'General';
+    document.getElementById('modalDescription').textContent = p.description || 'No description provided.';
+    document.getElementById('modalCrew').textContent = p.assigned_crew ? (typeof p.assigned_crew === 'string' ? p.assigned_crew : 'Assigned') : 'Not yet assigned';
+    document.getElementById('modalTimeline').textContent = p.timeline || 'Not specified';
+    document.getElementById('modalBudget').textContent = p.budget || 'Not specified';
+    document.getElementById('modalProgress').style.width = getProgress(p.status) + '%';
+    document.getElementById('modalProgress').className = 'fill ' + (getProgress(p.status) >= 100 ? 'complete' : getProgress(p.status) >= 50 ? 'half' : '');
+    document.getElementById('projectModal').classList.add('active');
+    await loadMessages(projectId);
+  } catch (err) {
+    showNotification(err.message, 'error');
+  }
+}
+
+// ===== LOAD MESSAGES =====
+async function loadMessages(projectId) {
+  try {
+    const headers = getAuthHeaders();
+    const res = await fetch('/api/projects/' + projectId + '/messages', { headers });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    const container = document.getElementById('modalMessages');
+    const messages = data.messages || [];
+    if (messages.length === 0) {
+      container.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-size:13px;padding:20px;">No messages yet. Start the conversation!</div>';
+    } else {
+      container.innerHTML = messages.map(m => {
+        const isMine = (m.sender_role === 'client' && m.sender_id === currentUser.id) || (m.sender_role === 'admin' && currentUser.role === 'admin');
+        const cls = m.sender_role === 'client' ? 'client' : 'admin';
+        return '<div class="msg ' + cls + '">' +
+          '<strong>' + escapeHtml(m.sender_name || m.sender_role) + '</strong>: ' + escapeHtml(m.content) +
+          '<div class="msg-meta">' + new Date(m.created_at).toLocaleString() + '</div>' +
+          '</div>';
+      }).join('');
+    }
+    container.scrollTop = container.scrollHeight;
+  } catch (err) {
+    document.getElementById('modalMessages').innerHTML = '<div style="text-align:center;color:var(--danger);font-size:13px;padding:20px;">Failed to load messages.</div>';
+  }
+}
+
+// ===== SEND MESSAGE =====
+async function sendMessage() {
+  const input = document.getElementById('msgInput');
+  const content = input.value.trim();
+  if (!content || !currentProjectId) return;
+  input.value = '';
+  try {
+    const headers = getAuthHeaders();
+    headers['Content-Type'] = 'application/json';
+    const res = await fetch('/api/projects/' + currentProjectId + '/messages', {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify({ content })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to send');
+    await loadMessages(currentProjectId);
+  } catch (err) {
+    showNotification(err.message, 'error');
+    input.value = content;
+  }
+}
+
+// ===== CLOSE MODAL =====
+function closeModal(id) {
+  document.getElementById(id).classList.remove('active');
+}
+
+// ===== GENERATE API KEY =====
 async function generateNewKey() {
   try {
     const headers = getAuthHeaders();
     headers['Content-Type'] = 'application/json';
-
     const res = await fetch('/api/auth/generate-key', {
       method: 'POST',
-      headers,
-      body: JSON.stringify({ label: 'Portal Key ' + new Date().toLocaleDateString() })
+      headers: headers,
+      body: JSON.stringify({ label: 'Client Key' })
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error);
-
-    localStorage.setItem('tld_api_key', data.api_key);
     document.getElementById('apiKeyValue').textContent = data.api_key;
-    document.getElementById('apiKeyDisplay').style.display = 'flex';
+    localStorage.setItem('tld_api_key', data.api_key);
     showNotification('New API key generated!', 'success');
   } catch (err) {
     showNotification(err.message, 'error');
   }
 }
 
+// ===== COPY API KEY =====
 function copyApiKey() {
   const key = document.getElementById('apiKeyValue').textContent;
   navigator.clipboard.writeText(key).then(() => {
     showNotification('API key copied!', 'success');
+  }).catch(() => {
+    // Fallback
+    const textarea = document.createElement('textarea');
+    textarea.value = key;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    showNotification('API key copied!', 'success');
   });
 }
 
-// ===== HELPERS =====
-function getApiUrl(path) {
-  const base = window.location.origin;
-  return `${base}${path}`;
-}
-
-function getAuthHeaders() {
-  const savedApiKey = localStorage.getItem('tld_api_key');
-  const savedToken = localStorage.getItem('tld_token');
-
-  if (savedToken) {
-    return { 'Authorization': `Bearer ${savedToken}` };
-  }
-  if (savedApiKey) {
-    return { 'x-api-key': savedApiKey };
-  }
-  return {};
-}
-
-function getProgress(status) {
-  const map = { 'applied': 10, 'discovery': 30, 'in_progress': 60, 'review': 85, 'completed': 100, 'cancelled': 0 };
-  return map[status] || 10;
-}
-
-function formatStatus(status) {
-  const map = { 'applied': 'APPLIED', 'discovery': 'DISCOVERY', 'in_progress': 'IN PROGRESS', 'review': 'REVIEW', 'completed': 'COMPLETED', 'cancelled': 'CANCELLED' };
-  return map[status] || status?.toUpperCase() || 'UNKNOWN';
-}
-
-function getStatusClass(status) {
-  const map = { 'applied': 'pill-amber', 'discovery': 'pill-warning', 'in_progress': '', 'review': 'pill-warning', 'completed': 'pill-success', 'cancelled': 'pill-danger' };
-  return map[status] || '';
-}
-
-function closeModal(id) {
-  document.getElementById(id).classList.remove('active');
-}
-
-function showAuthError(msg) {
-  const el = document.getElementById('authError');
-  el.textContent = msg;
-  el.style.display = 'flex';
-}
-
-function showNotification(msg, type = 'success') {
-  const el = document.createElement('div');
-  el.className = 'notification ' + (type === 'error' ? 'error' : '') + ' show';
-  el.textContent = msg;
-  document.body.appendChild(el);
-  setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 300); }, 5000);
-}
-
+// ===== LOGOUT =====
 function logout() {
   localStorage.removeItem('tld_token');
   localStorage.removeItem('tld_user');
@@ -825,12 +630,39 @@ function logout() {
   document.getElementById('authScreen').style.display = 'flex';
 }
 
+// ===== SHOW AUTH ERROR =====
+function showAuthError(message) {
+  const el = document.getElementById('authError');
+  el.textContent = message;
+  el.style.display = 'flex';
+}
+
+// ===== SHOW NOTIFICATION =====
+function showNotification(message, type) {
+  const el = document.getElementById('notification');
+  el.textContent = message;
+  el.className = 'notification ' + (type === 'error' ? 'error' : '') + ' show';
+  setTimeout(() => el.classList.remove('show'), 6000);
+}
+
 // ===== INIT =====
 if (!checkSession()) {
-  document.getElementById('authScreen').style.display = 'flex';
-  document.getElementById('dashboard').classList.remove('active');
+  // Check for API key auth
+  const apiKey = localStorage.getItem('tld_api_key');
+  if (apiKey) {
+    // Try to use API key to get user info
+    fetch('/api/auth/me', { headers: { 'x-api-key': apiKey } })
+      .then(res => res.json())
+      .then(data => {
+        if (data.user) {
+          token = apiKey;
+          currentUser = data.user;
+          showDashboard();
+        }
+      })
+      .catch(() => {});
+  }
 }
 </script>
 </body>
 </html>
-

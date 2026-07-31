@@ -8,181 +8,16 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="css/style.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
-  <style>
-    /* Admin Layout */
-    .admin-wrap { display: flex; min-height: 100vh; }
-    .admin-loading { display: flex; align-items: center; justify-content: center; min-height: 100vh; flex-direction: column; gap: 16px; }
 
-    /* Sidebar */
-    .sidebar {
-      width: 240px;
-      background: var(--board-2);
-      border-right: 1px solid var(--line);
-      padding: 24px 0;
-      flex-shrink: 0;
-      display: flex;
-      flex-direction: column;
-    }
-    .sidebar .logo { padding: 0 20px 24px; font-size: 14px; border-bottom: 1px solid var(--line); margin-bottom: 12px; }
-    .sidebar .logo span { color: var(--amber); }
-    .sidebar .logo small { display: block; font-size: 10px; color: var(--text-dim); font-family: 'IBM Plex Mono', monospace; margin-top: 4px; }
-
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 20px;
-      font-size: 13px;
-      color: var(--text-dim);
-      cursor: pointer;
-      transition: all .15s;
-      border: none;
-      background: none;
-      width: 100%;
-      text-align: left;
-      font-family: 'Inter', sans-serif;
-    }
-    .nav-item:hover { background: rgba(255,255,255,0.04); color: var(--flap); }
-    .nav-item.active { background: rgba(232,163,61,0.08); color: var(--amber); border-right: 2px solid var(--amber); }
-    .nav-item .badge {
-      margin-left: auto;
-      background: var(--danger);
-      color: white;
-      font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 10px;
-      font-family: 'IBM Plex Mono', monospace;
-    }
-
-    .sidebar-footer { margin-top: auto; padding: 16px 20px; border-top: 1px solid var(--line); font-size: 11px; color: var(--text-dim); }
-
-    /* Main Content */
-    .main-content { flex: 1; padding: 32px; overflow-y: auto; max-height: 100vh; }
-    .main-content h1 { font-size: 22px; margin-bottom: 4px; }
-    .main-content .subtitle { color: var(--text-dim); font-size: 13px; margin-bottom: 28px; }
-
-    .page-section { display: none; }
-    .page-section.active { display: block; }
-
-    /* Dashboard Cards */
-    .dash-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 32px;
-    }
-    @media (max-width: 900px) { .dash-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 500px) { .dash-grid { grid-template-columns: 1fr; } }
-
-    .dash-card {
-      background: var(--board-2);
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      padding: 20px;
-    }
-    .dash-card .dash-label { font-size: 11px; color: var(--text-dim); font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: 0.06em; }
-    .dash-card .dash-value { font-size: 32px; font-weight: 700; color: var(--flap); font-family: 'Space Grotesk', sans-serif; margin: 6px 0; }
-    .dash-card .dash-change { font-size: 11px; color: var(--teal); }
-
-    .dash-chart-area {
-      background: var(--board-2);
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      padding: 24px;
-      margin-bottom: 32px;
-    }
-    .dash-chart-area h3 { font-size: 16px; margin-bottom: 16px; }
-
-    .chart-bars {
-      display: flex;
-      align-items: flex-end;
-      gap: 8px;
-      height: 140px;
-      padding-top: 12px;
-    }
-    .chart-bar {
-      flex: 1;
-      background: var(--amber);
-      border-radius: 3px 3px 0 0;
-      min-height: 4px;
-      position: relative;
-      transition: height 0.5s ease;
-    }
-    .chart-bar .bar-label {
-      position: absolute;
-      bottom: -20px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 9px;
-      color: var(--text-dim);
-      font-family: 'IBM Plex Mono', monospace;
-      white-space: nowrap;
-    }
-    .chart-bar .bar-val {
-      position: absolute;
-      top: -18px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 10px;
-      color: var(--amber);
-      font-weight: 600;
-    }
-
-    /* Table enhancements */
-    .table-actions { display: flex; gap: 8px; }
-    .table-actions button { font-size: 11px; padding: 4px 10px; }
-
-    .status-select {
-      background: var(--board);
-      border: 1px solid var(--line);
-      color: var(--flap);
-      padding: 4px 8px;
-      border-radius: 3px;
-      font-size: 11px;
-      font-family: 'IBM Plex Mono', monospace;
-    }
-
-    /* Section header with action */
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    .page-header h2 { font-size: 18px; margin: 0; }
-
-    /* Settings */
-    .settings-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    @media (max-width: 700px) { .settings-grid { grid-template-columns: 1fr; } }
-
-    .settings-section {
-      background: var(--board-2);
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      padding: 24px;
-    }
-    .settings-section h3 { font-size: 16px; margin-bottom: 16px; }
-
-    /* Responsive sidebar */
-    @media (max-width: 768px) {
-      .sidebar { width: 60px; }
-      .sidebar .logo span, .sidebar .logo small, .nav-item span:not(.badge) { display: none; }
-      .nav-item { justify-content: center; padding: 12px; }
-      .main-content { padding: 20px; }
-    }
-  </style>
+  
 </head>
 <body>
 <div class="admin-loading" id="adminLoading">
   <div class="spinner"></div>
-  <div style="color: var(--text-dim); font-size: 13px;">Authenticating...</div>
+  <div class="auth-loading-text">Authenticating...</div>
 </div>
 
-<div class="admin-wrap" id="adminApp" style="display:none;">
+<div class="admin-wrap is-hidden" id="adminApp">
 
   <!-- ===== SIDEBAR ===== -->
   <aside class="sidebar">
@@ -195,7 +30,7 @@
     </button>
     <button class="nav-item" data-page="projects">
       📋 <span>Projects</span>
-      <span class="badge" id="projectBadge" style="display:none;">0</span>
+      <span class="badge is-hidden" id="projectBadge">0</span>
     </button>
     <button class="nav-item" data-page="clients">
       👥 <span>Clients</span>
@@ -247,11 +82,11 @@
       <div class="dash-chart-area">
         <h3>Projects by Month</h3>
         <div class="chart-bars" id="chartBars">
-          <div style="color: var(--text-dim); font-size: 13px;">Loading...</div>
+          <div class="chart-loading">Loading...</div>
         </div>
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+      <div class="settings-grid dash-recent-grid">
         <div class="dash-chart-area">
           <h3>Recent Projects</h3>
           <div id="recentProjectsList"></div>
@@ -267,7 +102,7 @@
     <div class="page-section" id="page-projects">
       <div class="page-header">
         <h2>Manage Projects</h2>
-        <span style="font-size: 12px; color: var(--text-dim);">Click to expand details</span>
+        <span class="expand-details">Click to expand details</span>
       </div>
       <div class="table-wrap">
         <table id="projectsTable">
@@ -338,7 +173,7 @@
     <!-- Messages -->
     <div class="page-section" id="page-messages">
       <div class="page-header">
-        <h2>Messages <span style="font-size: 12px; color: var(--text-dim); font-family: 'IBM Plex Mono', monospace;" id="msgCount">(0 unread)</span></h2>
+        <h2>Messages <span class="message-count" id="msgCount">(0 unread)</span></h2>
       </div>
       <div class="table-wrap">
         <table>
@@ -349,7 +184,7 @@
               <th>Message</th>
               <th>Status</th>
               <th>Time</th>
-              <th>Reply</th>
+             <th>Reply</th>
             </tr>
           </thead>
           <tbody id="messagesBody"></tbody>
@@ -406,7 +241,7 @@
 
 <!-- ===== MODALS ===== -->
 <div class="modal-overlay" id="addClientModal">
-  <div class="modal" style="max-width: 480px;">
+  <div class="modal modal-narrow">
     <div class="modal-header">
       <h2>Add Client</h2>
       <button class="modal-close" onclick="closeModal('addClientModal')">&times;</button>
@@ -417,24 +252,24 @@
       <div class="form-group"><label>Password</label><input type="password" name="password" placeholder="Minimum 6 characters" required minlength="6"></div>
       <div class="form-group"><label>Company</label><input type="text" name="company" placeholder="Company name"></div>
       <div class="form-group"><label>Phone</label><input type="text" name="phone" placeholder="+1 (555) 123-4567"></div>
-      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Create Client</button>
+      <button type="submit" class="btn btn-primary btn-full">Create Client</button>
     </form>
   </div>
 </div>
 
 <div class="modal-overlay" id="addCrewModal">
-  <div class="modal" style="max-width: 480px;">
+  <div class="modal modal-narrow">
     <div class="modal-header">
       <h2>Add Crew Member</h2>
       <button class="modal-close" onclick="closeModal('addCrewModal')">&times;</button>
     </div>
     <form id="addCrewForm">
-      <div class="form-group"><label>Name</label><input type="text" name="name" required></div>
+      <div class="form-group"><label>Name</label><input type="text" name="name" title="Crew member name" placeholder="Full name" required></div>
       <div class="form-group"><label>Role</label><input type="text" name="role" required placeholder="e.g. Full-Stack Developer"></div>
       <div class="form-group"><label>Code</label><input type="text" name="code" required placeholder="e.g. DEV-03"></div>
       <div class="form-group"><label>Initials</label><input type="text" name="initials" required placeholder="e.g. JD"></div>
       <div class="form-group"><label>Department</label>
-        <select name="department" required>
+        <select name="department" title="Department" required>
           <option value="LEAD">LEAD</option>
           <option value="DEV">DEV</option>
           <option value="OPS">OPS</option>
@@ -445,7 +280,7 @@
       </div>
       <div class="form-group"><label>Bio</label><textarea name="bio" placeholder="Short description"></textarea></div>
       <div class="form-group"><label>Portfolio URL</label><input type="url" name="portfolio_url" placeholder="https://..."></div>
-      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Add Member</button>
+      <button type="submit" class="btn btn-primary btn-full">Add Member</button>
     </form>
   </div>
 </div>
