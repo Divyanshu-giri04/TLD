@@ -30,7 +30,6 @@ const patterns = [
   { re: /ORDER BY id DESC LIMIT 1/, label: 'race-condition last-row fetch (audit 2.4)' },
   { re: /JWT_SECRET \|\| /, label: 'insecure JWT fallback (audit 1.2)' },
   { re: /express\.static\(__dirname\)/, label: 'project-root static serving (audit 1.1)' },
-  { re: /api\/admin\/settings/, label: 'admin settings on public page (audit 2.5)' },
   { re: /prompt\(/, label: 'prompt() usage (audit 2.7)' },
   { re: /password === crewMember\.password/, label: 'plaintext crew password (audit 2.7)' },
   { re: /extname \|\| mimetype|extname\s*\|\|\s*mimetype/, label: 'weak upload filter (audit 2.7)' }

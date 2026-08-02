@@ -131,7 +131,7 @@
 </head>
 <body>
 
-<!-- ===== AUTH SCREEN (real form, no prompt()) ===== -->
+<!-- ===== AUTH SCREEN (real login form, no native dialogs) ===== -->
 <div class="auth-screen" id="authScreen">
   <div class="auth-box">
     <div class="logo">T<span>L</span>D <small style="font-size:12px;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;">ADMIN</small></div>
@@ -374,7 +374,7 @@ var token = null;
 var adminUser = null;
 var currentProjectId = null;
 
-// ===== AUTH - real form (no prompt()) =====
+// ===== AUTH - real login form (no native dialogs) =====
 $('loginForm').addEventListener('submit', async function(e) {
   e.preventDefault();
   var email = $('adminEmail').value.trim();
@@ -534,7 +534,7 @@ async function toggleClientStatus(id, status) {
   try { var res = await fetch('/api/clients/' + id, { method: 'PUT', headers: Object.assign(authHeaders(), {'Content-Type':'application/json'}), body: JSON.stringify({status:status}) }); if (!res.ok) throw new Error('Update failed'); await loadClients(); } catch(e) { showNotification('Failed to update', 'error'); }
 }
 
-// ===== PASSWORD RESET MODAL (replaces prompt()) =====
+// ===== PASSWORD RESET MODAL (replaces native dialogs) =====
 var resetContext = null; // { type: 'client'|'crew', id, label }
 
 function openResetPwModal(type, id, label) {

@@ -548,7 +548,12 @@ async function openProjectModal(projectId) {
     document.getElementById('modalStatus').className = 'pill ' + getStatusClass(p.status);
     document.getElementById('modalDepartment').textContent = p.department || 'General';
     document.getElementById('modalDescription').textContent = p.description || 'No description provided.';
-    document.getElementById('modalCrew').textContent = p.assigned_crew ? (typeof p.assigned_crew === 'string' ? p.assigned_crew : 'Assigned') : 'Not yet assigned';
+    const crewNames = Array.isArray(p.assigned_crew_details)
+      ? p.assigned_crew_details.map(c => c.name).filter(Boolean)
+      : [];
+    document.getElementById('modalCrew').textContent = crewNames.length > 0
+      ? crewNames.join(', ')
+      : 'Not yet assigned';
     document.getElementById('modalTimeline').textContent = p.timeline || 'Not specified';
     document.getElementById('modalBudget').textContent = p.budget || 'Not specified';
     document.getElementById('modalProgress').style.width = getProgress(p.status) + '%';

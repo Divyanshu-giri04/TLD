@@ -8,7 +8,7 @@ const { verifyToken, requireAdmin } = require('../middleware/auth');
 const router = express.Router();
 
 const resetPasswordSchema = z.object({
-  type: z.enum(['client', 'crew', 'admin'], 'target type is client, crew, or admin'),
+  type: z.enum(['client', 'crew', 'admin'], { error: 'target type is client, crew, or admin' }),
   email: z.string().email('Valid email required'),
   new_password: z.string().min(6, 'Password must be at least 6 characters').max(200)
 });

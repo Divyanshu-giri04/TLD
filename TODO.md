@@ -27,24 +27,26 @@ these are the remaining items.
   - `middleware/auth.js`: add `optionalAuth` (never 401s; sets `req.user` when a valid Bearer token is present)
   - `routes/crew.js`: `GET /api/crew` uses `optionalAuth`; public callers get a safe subset (no email/login_id/salary/contact_no); admins still get full fields
 
-- [ ] **6. Replace `prompt()` password resets in admin panel** (audit 2.7)
+- [x] **6. Replace `prompt()` password resets in admin panel** (audit 2.7)
   - `public/admin-panel.html`: proper password-reset modal (target type/id + new password) replacing both `prompt()` calls
+  - Also rewrote the `prompt()`-mentioning comments so the audit scanner has zero false positives
 
-- [ ] **7. Client portal shows real assigned crew** (audit 2.6)
+- [x] **7. Client portal shows real assigned crew** (audit 2.6)
   - `public/client-portal.html`: render `assigned_crew_details` names instead of the stale `assigned_crew` blob
 
-- [ ] **8. Fix zod v4 enum error signature** in `routes/admin.js`
+- [x] **8. Fix zod v4 enum error signature** in `routes/admin.js`
   - `z.enum(['client','crew','admin'], { error: '...' })`
 
-- [ ] **9. Repo docs** (audit §3)
+- [x] **9. Repo docs** (audit §3)
   - `README.md` — setup, env vars, scripts, architecture
   - `.env.example` — documented env template
 
 ## Verification
 
-- [ ] Run `node scan-audit.js` — no `prompt(` matches remaining
-- [ ] Restart server, run `node test-api.js` — all pass
-- [ ] Run `node verify-static.js` — static exposure checks pass
-- [ ] Confirm `GET /api/crew` (public) no longer returns `salary`/`email`/`login_id`/`contact_no`
-- [ ] Confirm `GET /api/crew` with admin Bearer token still returns full fields
+- [x] Run `node scan-audit.js` — no `prompt(` matches remaining
+- [x] Restart server, run `node test-api.js` — all pass
+- [x] Run `node verify-static.js` — static exposure checks pass
+- [x] Confirm `GET /api/crew` (public) no longer returns `salary`/`email`/`login_id`/`contact_no`
+- [x] Confirm `GET /api/crew` with admin Bearer token still returns full fields
+
 
