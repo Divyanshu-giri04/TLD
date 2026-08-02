@@ -1,42 +1,70 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
-const { getDatabase, prepare } = require('../database');
-const { generateToken, verifyToken } = require('../middleware/auth');
+const { z } = require('zod');
+const { getDatabase, get, run, query, nowExpression } = require('../database');
+const { generateToken, verifyToken, verifyTokenOrApiKey } = require('../middleware/auth');
 
 const router = express.Router();
+
+// --- Validation schemas (audit 1.4: request-body validation) ---
+const registerSchema = z.object({
+  name: z.string().trim().min(1, 'Name is required').max(100),
+  email: z.string().email('Valid email required').max(200),
+  password: z.string().min(6, 'Password must be at least 6 characters').max(200),
+  company: z.string().max(150).optional().default(''),
+  phone: z.string().max(40).optional().default(''),
+  address: z.string().max(300).optional().default('')
+});
+
+const loginSchema = z.object({
+  email: z.string().email('Valid email required').max(200),
+  password: z.string().min(1, 'Password is required').max(200)
+});
+
+const generateKeySchema = z.object({
+  label: z.string().trim().max(100).optional().default('New Key')
+});
+
+const forgotPasswordSchema = z.object({
+  email: z.string().email('Valid email is required')
+});
+
+const resetPasswordSchema = z.object({
+  token: z.string().uuid('Invalid reset token'),
+  password: z.string().min(6, 'Password must be at least 6 characters').max(200)
+});
 
 // POST /api/auth/register - Client registration
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password, company, phone } = req.body;
-
-    if (!name || !email || !password) {
-      return res.status(400).json({ error: 'Name, email, and password are required' });
+    const parsed = registerSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.issues[0].message });
     }
-
-    if (password.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters' });
-    }
+    const { name, email, password, company, phone, address } = parsed.data;
 
     await getDatabase();
-    const existing = prepare('SELECT id FROM users WHERE email = ?').get(email);
+    const existing = await get('SELECT id FROM users WHERE email = ?', [email]);
     if (existing) {
       return res.status(409).json({ error: 'Email already registered' });
     }
 
     const hashedPassword = bcrypt.hashSync(password, 10);
-    const result = prepare('INSERT INTO users (name, email, password, company, phone, role) VALUES (?, ?, ?, ?, ?, ?)').run(
-      name, email, hashedPassword, company || '', phone || '', 'client'
+    const result = await run(
+      'INSERT INTO users (name, email, password, company, phone, address, role) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [name, email, hashedPassword, company, phone, address, 'client']
     );
+    const userId = result.lastId;
 
-    // Generate API key for new client
+    // Generate API key for new client — attached to the REAL user id (audit 2.2)
     const apiKey = uuidv4();
-    prepare('INSERT INTO api_keys (user_id, key, label) VALUES (?, ?, ?)').run(result.changes, apiKey, 'Default');
+    await run('INSERT INTO api_keys (user_id, key, label) VALUES (?, ?, ?)', [userId, apiKey, 'Default']);
 
-    // Get the last inserted ID
-    const users = prepare('SELECT id, name, email, role, company, phone, created_at FROM users ORDER BY id DESC LIMIT 1').all();
-    const user = users[0];
+    const user = await get(
+      'SELECT id, name, email, role, company, phone, address, created_at FROM users WHERE id = ?',
+      [userId]
+    );
 
     const token = generateToken(user);
 
@@ -48,6 +76,9 @@ router.post('/register', async (req, res) => {
     });
   } catch (err) {
     console.error('Register error:', err);
+    if (err && err.constraint === 'users_email_key') {
+      return res.status(409).json({ error: 'Email already registered' });
+    }
     res.status(500).json({ error: 'Server error during registration' });
   }
 });
@@ -55,14 +86,14 @@ router.post('/register', async (req, res) => {
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password are required' });
+    const parsed = loginSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.issues[0].message });
     }
+    const { email, password } = parsed.data;
 
     await getDatabase();
-    const user = prepare('SELECT * FROM users WHERE email = ?').get(email);
+    const user = await get('SELECT * FROM users WHERE email = ?', [email]);
 
     if (!user) {
       return res.status(401).json({ error: 'Invalid email or password' });
@@ -73,8 +104,7 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    // Get API keys
-    const apiKeys = prepare('SELECT key, label, last_used FROM api_keys WHERE user_id = ?').all(user.id);
+    const apiKeys = await query('SELECT key, label, last_used FROM api_keys WHERE user_id = ?', [user.id]);
 
     const token = generateToken(user);
     const { password: _, ...userData } = user;
@@ -91,17 +121,20 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// GET /api/auth/me - Get current user
-router.get('/me', verifyToken, async (req, res) => {
+// GET /api/auth/me - Get current user (JWT or API key — audit 2.2)
+router.get('/me', verifyTokenOrApiKey, async (req, res) => {
   try {
     await getDatabase();
-    const user = prepare('SELECT id, name, email, role, company, phone, avatar, status, created_at FROM users WHERE id = ?').get(req.user.id);
+    const user = await get(
+      'SELECT id, name, email, role, company, phone, address, avatar, status, created_at FROM users WHERE id = ?',
+      [req.user.id]
+    );
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const apiKeys = prepare('SELECT id, key, label, last_used, created_at FROM api_keys WHERE user_id = ?').all(user.id);
+    const apiKeys = await query('SELECT id, key, label, last_used, created_at FROM api_keys WHERE user_id = ?', [user.id]);
 
     res.json({ user, api_keys: apiKeys });
   } catch (err) {
@@ -112,18 +145,20 @@ router.get('/me', verifyToken, async (req, res) => {
 // POST /api/auth/generate-key - Generate new API key
 router.post('/generate-key', verifyToken, async (req, res) => {
   try {
-    const { label } = req.body;
+    const parsed = generateKeySchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.issues[0].message });
+    }
+    const { label } = parsed.data;
     const apiKey = uuidv4();
     await getDatabase();
 
-    prepare('INSERT INTO api_keys (user_id, key, label) VALUES (?, ?, ?)').run(
-      req.user.id, apiKey, label || 'New Key'
-    );
+    await run('INSERT INTO api_keys (user_id, key, label) VALUES (?, ?, ?)', [req.user.id, apiKey, label]);
 
     res.status(201).json({
       message: 'API key generated',
       api_key: apiKey,
-      label: label || 'New Key'
+      label
     });
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
@@ -134,7 +169,7 @@ router.post('/generate-key', verifyToken, async (req, res) => {
 router.delete('/revoke-key/:id', verifyToken, async (req, res) => {
   try {
     await getDatabase();
-    const result = prepare('DELETE FROM api_keys WHERE id = ? AND user_id = ?').run(req.params.id, req.user.id);
+    const result = await run('DELETE FROM api_keys WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
 
     if (result.changes === 0) {
       return res.status(404).json({ error: 'API key not found' });
@@ -146,5 +181,79 @@ router.delete('/revoke-key/:id', verifyToken, async (req, res) => {
   }
 });
 
-module.exports = router;
+// POST /api/auth/forgot-password - Request password reset (clients)
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const parsed = forgotPasswordSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.issues[0].message });
+    }
+    const { email } = parsed.data;
 
+    await getDatabase();
+    const user = await get('SELECT id, name, email FROM users WHERE email = ? AND role = ?', [email, 'client']);
+
+    // Don't reveal existence
+    if (!user) {
+      return res.json({ message: 'If the account exists, a reset link has been sent.' });
+    }
+
+    const token = uuidv4();
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+    await run(
+      'INSERT INTO password_reset_tokens (token, user_id, expires_at, used) VALUES (?, ?, ?, 0)',
+      [token, user.id, expiresAt]
+    );
+
+    console.log(`\n  🔐 Password reset for client "${user.name}" (${user.email}):\n  Token: ${token}\n  POST /api/auth/reset-password { token, password: "..." }\n`);
+
+    res.json({ message: 'If the account exists, a reset link has been sent.', reset_token: token });
+  } catch (err) {
+    console.error('Forgot password error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// POST /api/auth/reset-password - Reset password with token
+router.post('/reset-password', async (req, res) => {
+  try {
+    const parsed = resetPasswordSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.issues[0].message });
+    }
+    const { token, password } = parsed.data;
+
+    await getDatabase();
+
+    const resetToken = await get(
+      `SELECT * FROM password_reset_tokens WHERE token = ? AND used = 0 AND expires_at > ${nowExpression()}`,
+      [token]
+    );
+
+    if (!resetToken) {
+      return res.status(400).json({ error: 'Invalid or expired reset token' });
+    }
+
+    const hashedPassword = bcrypt.hashSync(password, 10);
+
+    if (resetToken.user_id) {
+      // Client password reset
+      await run('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, resetToken.user_id]);
+    } else if (resetToken.crew_id) {
+      // Crew password reset
+      await run('UPDATE crew_members SET password = ? WHERE id = ?', [hashedPassword, resetToken.crew_id]);
+    } else {
+      return res.status(400).json({ error: 'Invalid reset token' });
+    }
+
+    // Mark token as used
+    await run('UPDATE password_reset_tokens SET used = 1 WHERE id = ?', [resetToken.id]);
+
+    res.json({ message: 'Password reset successful. You can now log in with your new password.' });
+  } catch (err) {
+    console.error('Reset password error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+module.exports = router;

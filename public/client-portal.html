@@ -122,34 +122,67 @@
     <form class="auth-form active" id="loginForm">
       <div class="form-group">
         <label for="loginEmail">Email</label>
-        <input type="email" id="loginEmail" name="email" required placeholder="you@company.com">
+        <input type="email" id="loginEmail" name="email" required>
       </div>
       <div class="form-group">
         <label for="loginPassword">Password</label>
-        <input type="password" id="loginPassword" name="password" required placeholder="Enter password">
+        <input type="password" id="loginPassword" name="password" required>
       </div>
       <button type="submit" class="btn btn-primary">Login to Portal</button>
+      <div style="text-align:center;margin-top:16px;font-size:12.5px;color:var(--text-dim);">
+        <a onclick="showForgotForm()" style="color:var(--amber);cursor:pointer;text-decoration:underline;">Forgot password?</a>
+      </div>
+    </form>
+
+    <form class="auth-form" id="forgotForm">
+      <div class="form-group">
+        <label for="forgotEmail">Email</label>
+        <input type="email" id="forgotEmail" name="email" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Send Reset Link</button>
+      <div style="text-align:center;margin-top:16px;font-size:12.5px;color:var(--text-dim);">
+        <a onclick="showLoginForm()" style="color:var(--teal);cursor:pointer;text-decoration:underline;">← Back to login</a>
+      </div>
+    </form>
+
+    <form class="auth-form" id="resetForm">
+      <div class="form-group">
+        <label for="resetToken">Reset Token</label>
+        <input type="text" id="resetToken" name="token" required>
+      </div>
+      <div class="form-group">
+        <label for="resetPassword">New Password (min 6 chars)</label>
+        <input type="password" id="resetPassword" name="password" required minlength="6">
+      </div>
+      <button type="submit" class="btn btn-primary">Reset Password</button>
+      <div style="text-align:center;margin-top:16px;font-size:12.5px;color:var(--text-dim);">
+        <a onclick="showLoginForm()" style="color:var(--teal);cursor:pointer;text-decoration:underline;">← Back to login</a>
+      </div>
     </form>
 
     <form class="auth-form" id="registerForm">
       <div class="form-group">
         <label for="regName">Full Name</label>
-        <input type="text" id="regName" name="name" required placeholder="Your name">
+        <input type="text" id="regName" name="name" required>
       </div>
       <div class="form-group">
         <label for="regEmail">Email</label>
-        <input type="email" id="regEmail" name="email" required placeholder="you@company.com">
+        <input type="email" id="regEmail" name="email" required>
       </div>
       <div class="form-group">
         <label for="regPassword">Password (min 6 chars)</label>
-        <input type="password" id="regPassword" name="password" required minlength="6" placeholder="Create a password">
+        <input type="password" id="regPassword" name="password" required minlength="6">
       </div>
       <div class="form-group">
         <label for="regCompany">Company</label>
-        <input type="text" id="regCompany" name="company" placeholder="Company name (optional)">
+        <input type="text" id="regCompany" name="company">
       </div>
       <button type="submit" class="btn btn-primary">Create Account</button>
     </form>
+
+    <div style="text-align:center;margin-top:18px;font-size:12.5px;color:var(--text-dim);">
+      Are you on the crew? <a href="crew-portal.html" style="color:var(--teal);text-decoration:underline;">Crew Portal →</a>
+    </div>
 
     <div id="authError" style="display:none;" class="alert alert-error"></div>
   </div>
@@ -277,7 +310,7 @@
     <form id="newProjectForm">
       <div class="form-group">
         <label for="projectTitle">Project Title</label>
-        <input type="text" id="projectTitle" name="title" required placeholder="e.g. Company Website Redesign">
+        <input type="text" id="projectTitle" name="title" required>
       </div>
       <div class="form-group">
         <label for="projectDept">Department</label>
@@ -292,7 +325,7 @@
       </div>
       <div class="form-group">
         <label for="projectDesc">Description</label>
-        <textarea id="projectDesc" name="description" required placeholder="Describe what you need built or done..."></textarea>
+        <textarea id="projectDesc" name="description" required></textarea>
       </div>
       <div class="form-group">
         <label for="projectBudget">Budget Range</label>
@@ -306,7 +339,7 @@
       </div>
       <div class="form-group">
         <label for="projectTimeline">Timeline</label>
-        <input type="text" id="projectTimeline" name="timeline" placeholder="e.g. 2-3 months">
+        <input type="text" id="projectTimeline" name="timeline">
       </div>
       <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Submit Project</button>
     </form>
@@ -630,11 +663,77 @@ function logout() {
   document.getElementById('authScreen').style.display = 'flex';
 }
 
+// ===== FORGOT / RESET PASSWORD =====
+function showForgotForm() {
+  document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+  document.getElementById('forgotForm').classList.add('active');
+  document.getElementById('authError').style.display = 'none';
+}
+
+function showResetForm() {
+  document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+  document.getElementById('resetForm').classList.add('active');
+  document.getElementById('authError').style.display = 'none';
+}
+
+function showLoginForm() {
+  document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+  document.getElementById('loginForm').classList.add('active');
+  document.getElementById('authError').style.display = 'none';
+}
+
+document.getElementById('forgotForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('forgotEmail').value.trim();
+  try {
+    const res = await fetch('/api/auth/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Request failed');
+    showAuthError(data.message || 'If the account exists, a reset link has been sent.');
+    document.getElementById('authError').style.display = 'flex';
+    if (data.reset_token) {
+      // Dev mode: show the token and offer to pre-fill
+      showAuthError('Reset token (dev): ' + data.reset_token);
+      document.getElementById('authError').style.display = 'flex';
+      showResetForm();
+      document.getElementById('resetToken').value = data.reset_token;
+    }
+  } catch (err) {
+    showAuthError(err.message);
+  }
+});
+
+document.getElementById('resetForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const token = document.getElementById('resetToken').value.trim();
+  const password = document.getElementById('resetPassword').value;
+  try {
+    const res = await fetch('/api/auth/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, password })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Reset failed');
+    showAuthError(data.message || 'Password reset successful! You can now log in.');
+    document.getElementById('authError').style.display = 'flex';
+    document.getElementById('authError').className = 'alert alert-success';
+    showLoginForm();
+  } catch (err) {
+    showAuthError(err.message);
+  }
+});
+
 // ===== SHOW AUTH ERROR =====
 function showAuthError(message) {
   const el = document.getElementById('authError');
   el.textContent = message;
   el.style.display = 'flex';
+  el.className = 'alert alert-error';
 }
 
 // ===== SHOW NOTIFICATION =====

@@ -1,37 +1,66 @@
 const express = require('express');
-const { getDatabase, prepare } = require('../database');
-const { verifyToken } = require('../middleware/auth');
+const { z } = require('zod');
+const { getDatabase, get, run, query } = require('../database');
+const { verifyToken, requireAdmin } = require('../middleware/auth');
 
 const router = express.Router();
+
+const sendMessageSchema = z.object({
+  content: z.string().trim().min(1, 'Message content is required').max(5000)
+});
+
+// Helper: resolve crew member by JWT id (with fallback)
+async function resolveCrew(user) {
+  let crew = await get('SELECT * FROM crew_members WHERE id = ?', [user.id]);
+  if (!crew) {
+    crew = await get('SELECT * FROM crew_members WHERE email = ? OR code = ? OR login_id = ?', [
+      user.email || '', user.code || '', user.login_id || ''
+    ]);
+  }
+  return crew;
+}
 
 // GET /api/projects/:projectId/messages - Get messages for a project
 router.get('/:projectId/messages', verifyToken, async (req, res) => {
   try {
     await getDatabase();
-    const project = prepare('SELECT * FROM projects WHERE id = ?').get(req.params.projectId);
+    const project = await get('SELECT * FROM projects WHERE id = ?', [req.params.projectId]);
 
     if (!project) {
       return res.status(404).json({ error: 'Project not found' });
     }
 
-    // Check access
-    if (req.user.role !== 'admin' && project.client_id !== req.user.id) {
+    // Check access: admin, the project owner, or an assigned crew member
+    let allowed = req.user.role === 'admin' || (req.user.role === 'client' && project.client_id === req.user.id);
+    if (!allowed && req.user.role === 'crew') {
+      const crew = await resolveCrew(req.user);
+      if (crew) {
+        const assign = await get('SELECT id FROM project_assignments WHERE project_id = ? AND crew_id = ?', [project.id, crew.id]);
+        allowed = !!assign;
+      }
+    }
+
+    if (!allowed) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    const messages = prepare(`
-      SELECT m.*, u.name as sender_name, u.role as sender_user_role
-      FROM messages m 
-      JOIN users u ON m.sender_id = u.id 
-      WHERE m.project_id = ? 
+    const messages = await query(`
+      SELECT m.*,
+        CASE
+          WHEN m.sender_role = 'crew' THEN (SELECT cm.name FROM crew_members cm WHERE cm.id = m.sender_id)
+          ELSE (SELECT u.name FROM users u WHERE u.id = m.sender_id)
+        END as sender_name,
+        m.sender_role as sender_user_role
+      FROM messages m
+      WHERE m.project_id = ?
       ORDER BY m.created_at ASC
-    `).all(req.params.projectId);
+    `, [req.params.projectId]);
 
     // Mark messages as read if user is admin
     if (req.user.role === 'admin') {
-      prepare('UPDATE messages SET is_read = 1 WHERE project_id = ? AND sender_role = ?').run(
+      await run('UPDATE messages SET is_read = 1 WHERE project_id = ? AND sender_role = ?', [
         req.params.projectId, 'client'
-      );
+      ]);
     }
 
     res.json({ messages });
@@ -44,37 +73,51 @@ router.get('/:projectId/messages', verifyToken, async (req, res) => {
 // POST /api/projects/:projectId/messages - Send message
 router.post('/:projectId/messages', verifyToken, async (req, res) => {
   try {
-    const { content } = req.body;
-
-    if (!content || !content.trim()) {
-      return res.status(400).json({ error: 'Message content is required' });
+    const parsed = sendMessageSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.issues[0].message });
     }
+    const { content } = parsed.data;
 
     await getDatabase();
-    const project = prepare('SELECT * FROM projects WHERE id = ?').get(req.params.projectId);
+    const project = await get('SELECT * FROM projects WHERE id = ?', [req.params.projectId]);
 
     if (!project) {
       return res.status(404).json({ error: 'Project not found' });
     }
 
-    // Check access
-    if (req.user.role !== 'admin' && project.client_id !== req.user.id) {
+    // Check access: admin, the project owner, or an assigned crew member
+    let allowed = req.user.role === 'admin' || (req.user.role === 'client' && project.client_id === req.user.id);
+    if (!allowed && req.user.role === 'crew') {
+      const crew = await resolveCrew(req.user);
+      if (crew) {
+        const assign = await get('SELECT id FROM project_assignments WHERE project_id = ? AND crew_id = ?', [project.id, crew.id]);
+        allowed = !!assign;
+      }
+    }
+
+    if (!allowed) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    const senderRole = req.user.role === 'admin' ? 'admin' : 'client';
+    const senderRole = req.user.role === 'admin' ? 'admin' : (req.user.role === 'crew' ? 'crew' : 'client');
 
-    prepare(`
-      INSERT INTO messages (project_id, sender_id, sender_role, content) 
+    // Use last_insert_rowid on SQLite, RETURNING on Postgres
+    const result = await run(`
+      INSERT INTO messages (project_id, sender_id, sender_role, content)
       VALUES (?, ?, ?, ?)
-    `).run(req.params.projectId, req.user.id, senderRole, content.trim());
+    `, [req.params.projectId, req.user.id, senderRole, content]);
 
-    const message = prepare(`
-      SELECT m.*, u.name as sender_name, u.role as sender_user_role
-      FROM messages m 
-      JOIN users u ON m.sender_id = u.id 
-      WHERE m.id = (SELECT MAX(id) FROM messages)
-    `).get();
+    const message = await get(`
+      SELECT m.*,
+        CASE
+          WHEN m.sender_role = 'crew' THEN (SELECT cm.name FROM crew_members cm WHERE cm.id = m.sender_id)
+          ELSE (SELECT u.name FROM users u WHERE u.id = m.sender_id)
+        END as sender_name,
+        m.sender_role as sender_user_role
+      FROM messages m
+      WHERE m.id = ?
+    `, [result.lastId]);
 
     res.status(201).json({ message });
   } catch (err) {
@@ -90,20 +133,30 @@ router.get('/unread', verifyToken, async (req, res) => {
     let count;
 
     if (req.user.role === 'admin') {
-      count = prepare("SELECT COUNT(*) as count FROM messages WHERE is_read = 0 AND sender_role = ?").get('client');
+      count = (await get("SELECT COUNT(*) as count FROM messages WHERE is_read = 0 AND sender_role = ?", ['client'])).count;
+    } else if (req.user.role === 'crew') {
+      const crew = await resolveCrew(req.user);
+      if (!crew) {
+        return res.json({ unread_count: 0 });
+      }
+      count = (await get(`
+        SELECT COUNT(*) as count FROM messages m
+        JOIN project_assignments pa ON pa.project_id = m.project_id
+        WHERE pa.crew_id = ? AND m.is_read = 0 AND m.sender_role != 'crew'
+      `, [crew.id])).count;
     } else {
-      count = prepare(`
-        SELECT COUNT(*) as count FROM messages m 
-        JOIN projects p ON m.project_id = p.id 
+      count = (await get(`
+        SELECT COUNT(*) as count FROM messages m
+        JOIN projects p ON m.project_id = p.id
         WHERE p.client_id = ? AND m.is_read = 0 AND m.sender_role != 'client'
-      `).get(req.user.id);
+      `, [req.user.id])).count;
     }
 
-    res.json({ unread_count: count.count });
+    res.json({ unread_count: count });
   } catch (err) {
+    console.error('Unread error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
 
 module.exports = router;
-

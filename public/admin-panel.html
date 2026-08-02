@@ -6,252 +6,261 @@
   <title>Admin Panel — The Launch Desk</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="css/style.css" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --board: #14181F; --board-2: #1B212B; --flap: #EFE9DD; --ink: #1B2430;
+      --amber: #E8A33D; --teal: #3E7C82; --line: #333B48; --paper-dim: #B9B2A2;
+      --text-dim: #8B93A3; --success: #5FD87A; --danger: #E85A5A; --warning: #F0C94D;
+      --radius: 6px; --transition: 0.2s ease;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--board); color: var(--flap); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; line-height: 1.6; }
+    h1,h2,h3,h4,h5 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.01em; }
+    .mono { font-family: 'IBM Plex Mono', monospace; }
+    a { color: inherit; text-decoration: none; }
+    input,textarea,select { font-family: 'Inter', sans-serif; }
+    .btn { font-family: 'IBM Plex Mono',monospace; font-size: 13px; letter-spacing: 0.03em; padding: 13px 22px; border-radius: 3px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; border: 1px solid transparent; cursor: pointer; transition: transform var(--transition), background var(--transition), border-color var(--transition); }
+    .btn-primary { background: var(--amber); color: #20160A; }
+    .btn-primary:hover { transform: translateY(-1px); background: #f0ae4c; }
+    .btn-ghost { border-color: var(--line); color: var(--flap); background: transparent; }
+    .btn-ghost:hover { border-color: var(--teal); background: rgba(62,124,130,0.12); }
+    .btn-sm { padding: 8px 14px; font-size: 11px; }
+    .btn-danger { background: var(--danger); color: white; border-color: var(--danger); }
+    .btn-danger:hover { background: #d94a4a; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-family: 'IBM Plex Mono',monospace; font-size: 11px; letter-spacing: 0.06em; color: var(--text-dim); margin-bottom: 6px; text-transform: uppercase; }
+    .form-group input,.form-group textarea,.form-group select { width: 100%; padding: 11px 14px; background: var(--board); border: 1px solid var(--line); border-radius: 4px; color: var(--flap); font-size: 14px; transition: border-color var(--transition); }
+    .form-group input:focus,.form-group textarea:focus,.form-group select:focus { outline: none; border-color: var(--amber); }
+    .form-group textarea { min-height: 80px; resize: vertical; }
+    .pill { display: inline-flex; align-items: center; gap: 6px; font-family: 'IBM Plex Mono',monospace; font-size: 10px; letter-spacing: 0.06em; padding: 4px 10px; border-radius: 3px; border: 1px solid var(--line); background: rgba(255,255,255,0.04); color: var(--text-dim); }
+    .pill-success { color: var(--success); border-color: #2E4A34; background: #182119; }
+    .pill-warning { color: var(--warning); border-color: #4A442E; background: #1F1C14; }
+    .pill-danger { color: var(--danger); border-color: #4A2E2E; background: #1F1414; }
+    .pill-amber { color: var(--amber); border-color: #4A3E2E; background: #1F1C14; }
+    .pill-info { color: var(--teal); border-color: #2E4A4A; background: #182121; }
+    .alert { padding: 14px 18px; border-radius: 4px; font-size: 13px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+    .alert-error { background: #1F1414; border: 1px solid #4A2E2E; color: var(--danger); }
+    .alert-success { background: #182119; border: 1px solid #2E4A34; color: var(--success); }
+    .spinner { width: 24px; height: 24px; border: 2px solid var(--line); border-top-color: var(--amber); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .notification { position: fixed; bottom: 24px; right: 24px; background: var(--board-2); border: 1px solid var(--success); color: var(--success); padding: 16px 24px; border-radius: 6px; font-size: 13px; font-family: 'IBM Plex Mono',monospace; transform: translateY(120px); opacity: 0; transition: all 0.3s ease; z-index: 100; }
+    .notification.show { transform: translateY(0); opacity: 1; }
+    .notification.error { border-color: var(--danger); color: var(--danger); }
+    .card { background: var(--board-2); border: 1px solid var(--line); border-radius: var(--radius); }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead th { text-align: left; font-family: 'IBM Plex Mono',monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); padding: 12px 14px; border-bottom: 1px solid var(--line); }
+    tbody td { padding: 12px 14px; border-bottom: 1px solid rgba(51,59,72,0.5); color: var(--paper-dim); }
+    tbody tr:hover { background: rgba(255,255,255,0.02); }
 
-  
+    /* Auth screen */
+    .auth-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+    .auth-box { width: 100%; max-width: 400px; background: var(--board-2); border: 1px solid var(--line); border-radius: 10px; padding: 40px 32px; }
+    .auth-box .logo { text-align: center; font-size: 18px; margin-bottom: 8px; }
+    .auth-box .logo span { color: var(--amber); }
+    .auth-sub { text-align: center; color: var(--text-dim); font-size: 13px; margin-bottom: 24px; }
+
+    /* Admin layout */
+    .admin-wrap { display: flex; min-height: 100vh; }
+    .admin-wrap.is-hidden { display: none; }
+    .sidebar { width: 220px; min-width: 220px; background: var(--board-2); border-right: 1px solid var(--line); padding: 24px 16px; display: flex; flex-direction: column; gap: 4px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+    .sidebar .logo { font-size: 20px; font-weight: 700; letter-spacing: 0.04em; margin-bottom: 24px; padding: 0 8px; }
+    .sidebar .logo span { color: var(--amber); }
+    .sidebar .logo small { font-size: 11px; font-weight: 400; color: var(--text-dim); font-family: 'IBM Plex Mono',monospace; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: none; border-radius: 4px; background: transparent; color: var(--text-dim); font-family: 'Inter',sans-serif; font-size: 13px; cursor: pointer; transition: all .15s; text-align: left; width: 100%; position: relative; }
+    .nav-item:hover { background: rgba(255,255,255,0.04); color: var(--flap); }
+    .nav-item.active { background: rgba(232,163,61,0.1); color: var(--amber); }
+    .nav-item .badge { margin-left: auto; background: var(--danger); color: white; font-size: 10px; padding: 1px 6px; border-radius: 8px; font-family: 'IBM Plex Mono',monospace; }
+    .nav-item .badge.is-hidden { display: none; }
+    .sidebar-footer { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--line); font-size: 12px; color: var(--text-dim); }
+    .main-content { flex: 1; padding: 32px; overflow-y: auto; max-width: 100%; }
+    .page-section { display: none; }
+    .page-section.active { display: block; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    .page-header h1,.page-header h2 { font-size: 22px; font-weight: 600; }
+    .subtitle { color: var(--text-dim); font-size: 14px; margin-bottom: 28px; margin-top: -8px; }
+    .dash-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 32px; }
+    @media (max-width:900px) { .dash-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width:500px) { .dash-grid { grid-template-columns: 1fr; } }
+    .dash-card { background: var(--board-2); border: 1px solid var(--line); border-radius: 6px; padding: 22px; }
+    .dash-label { font-family: 'IBM Plex Mono',monospace; font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+    .dash-value { font-size: 32px; font-weight: 700; color: var(--amber); font-family: 'Space Grotesk',sans-serif; }
+    .dash-chart-area { background: var(--board-2); border: 1px solid var(--line); border-radius: 6px; padding: 24px; margin-bottom: 24px; }
+    .dash-chart-area h3 { font-size: 15px; margin-bottom: 16px; }
+    .chart-bars { display: flex; align-items: flex-end; gap: 10px; height: 140px; padding: 10px 0; }
+    .chart-bar { flex: 1; background: var(--amber); border-radius: 3px 3px 0 0; min-width: 20px; position: relative; transition: height 0.5s ease; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+    .bar-val { font-size: 10px; color: var(--flap); font-family: 'IBM Plex Mono',monospace; margin-bottom: 4px; }
+    .bar-label { font-size: 9px; color: var(--text-dim); font-family: 'IBM Plex Mono',monospace; position: absolute; bottom: -18px; }
+    .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width:700px) { .settings-grid { grid-template-columns: 1fr; } }
+    .dash-recent-grid { margin-top: 8px; }
+    .settings-section { background: var(--board-2); border: 1px solid var(--line); border-radius: 6px; padding: 24px; }
+    .settings-section h3 { font-size: 15px; margin-bottom: 18px; }
+    .status-select { background: var(--board); border: 1px solid var(--line); border-radius: 3px; color: var(--flap); font-family: 'IBM Plex Mono',monospace; font-size: 11px; padding: 4px 8px; cursor: pointer; }
+    .status-select:focus { outline: none; border-color: var(--amber); }
+    .table-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .message-count { font-family: 'IBM Plex Mono',monospace; font-size: 12px; color: var(--text-dim); font-weight: 400; }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: var(--board-2); border: 1px solid var(--line); border-radius: 10px; width: 100%; max-width: 680px; max-height: 90vh; overflow-y: auto; padding: 32px; }
+    .modal-narrow { max-width: 480px; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .modal-header h2 { font-size: 20px; }
+    .modal-close { background: none; border: none; color: var(--text-dim); font-size: 24px; cursor: pointer; padding: 4px; }
+    .modal-messages { max-height: 400px; overflow-y: auto; margin-bottom: 16px; padding: 12px; background: var(--board); border-radius: 6px; border: 1px solid var(--line); }
+    .msg { margin-bottom: 14px; padding: 12px 14px; border-radius: 6px; font-size: 13px; line-height: 1.5; }
+    .msg.client { background: rgba(62,124,130,0.1); border: 1px solid rgba(62,124,130,0.2); margin-left: 40px; }
+    .msg.admin,.msg.crew { background: rgba(232,163,61,0.08); border: 1px solid rgba(232,163,61,0.15); margin-right: 40px; }
+    .msg .msg-meta { font-size: 10px; color: var(--text-dim); margin-top: 6px; font-family: 'IBM Plex Mono',monospace; }
+    .msg-input-area { display: flex; gap: 10px; }
+    .msg-input-area input { flex: 1; padding: 11px 14px; background: var(--board); border: 1px solid var(--line); border-radius: 4px; color: var(--flap); font-size: 13px; }
+    .msg-input-area input:focus { outline: none; border-color: var(--amber); }
+    .btn-full { width: 100%; justify-content: center; }
+    .hidden { display: none !important; }
+    .tab-bar { display: flex; gap: 0; margin-bottom: 24px; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; width: fit-content; }
+    .tab-bar .tab { padding: 10px 18px; font-family: 'IBM Plex Mono',monospace; font-size: 12px; cursor: pointer; background: var(--board); color: var(--text-dim); border: none; }
+    .tab-bar .tab.active { background: var(--board-2); color: var(--flap); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .crew-avatar-sm { width: 28px; height: 28px; border-radius: 50%; background: var(--teal); color: var(--flap); display: inline-flex; align-items: center; justify-content: center; font-family: 'Space Grotesk',sans-serif; font-weight: 700; font-size: 11px; }
+
+    @media (max-width:860px) { .sidebar { width: 60px; min-width: 60px; padding: 16px 8px; } .sidebar .logo small,.sidebar .nav-item span { display: none; } .sidebar .nav-item { justify-content: center; padding: 12px 4px; font-size: 16px; } .sidebar-footer div:first-child { display: none; } .main-content { padding: 20px 16px; } }
+    @media (max-width:480px) { .sidebar { width: 48px; min-width: 48px; padding: 12px 4px; } .main-content { padding: 16px 12px; } }
+  </style>
 </head>
 <body>
-<div class="admin-loading" id="adminLoading">
-  <div class="spinner"></div>
-  <div class="auth-loading-text">Authenticating...</div>
+
+<!-- ===== AUTH SCREEN (real form, no prompt()) ===== -->
+<div class="auth-screen" id="authScreen">
+  <div class="auth-box">
+    <div class="logo">T<span>L</span>D <small style="font-size:12px;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;">ADMIN</small></div>
+    <div class="auth-sub">Admin login — enter your credentials</div>
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="adminEmail">Email</label>
+        <input type="email" id="adminEmail" name="email" required autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label for="adminPassword">Password</label>
+        <input type="password" id="adminPassword" name="password" required autocomplete="current-password">
+      </div>
+      <div id="loginError" class="alert alert-error hidden"></div>
+      <button type="submit" class="btn btn-primary btn-full" id="loginBtn">Login</button>
+    </form>
+    <div style="margin-top: 20px; text-align: center; font-size: 12px; color: var(--text-dim);">
+      <a href="/" style="color: var(--teal);">← Back to site</a>
+    </div>
+  </div>
 </div>
 
+<!-- ===== ADMIN APP ===== -->
 <div class="admin-wrap is-hidden" id="adminApp">
-
-  <!-- ===== SIDEBAR ===== -->
   <aside class="sidebar">
-    <div class="logo">
-      T<span>L</span>D <small>ADMIN</small>
-    </div>
-
-    <button class="nav-item active" data-page="dashboard">
-      📊 <span>Dashboard</span>
-    </button>
-    <button class="nav-item" data-page="projects">
-      📋 <span>Projects</span>
-      <span class="badge is-hidden" id="projectBadge">0</span>
-    </button>
-    <button class="nav-item" data-page="clients">
-      👥 <span>Clients</span>
-    </button>
-    <button class="nav-item" data-page="crew">
-      🧑‍🤝‍🧑 <span>Crew</span>
-    </button>
-    <button class="nav-item" data-page="messages">
-      💬 <span>Messages</span>
-      <span class="badge" id="msgBadge">0</span>
-    </button>
-    <button class="nav-item" data-page="settings">
-      ⚙️ <span>Settings</span>
-    </button>
-
+    <div class="logo">T<span>L</span>D <small>ADMIN</small></div>
+    <button class="nav-item active" data-page="dashboard">📊 <span>Dashboard</span></button>
+    <button class="nav-item" data-page="projects">📋 <span>Projects</span><span class="badge is-hidden" id="projectBadge">0</span></button>
+    <button class="nav-item" data-page="clients">👥 <span>Clients</span></button>
+    <button class="nav-item" data-page="crew">🧑‍🤝‍🧑 <span>Crew</span></button>
+    <button class="nav-item" data-page="messages">💬 <span>Messages</span><span class="badge" id="msgBadge">0</span></button>
+    <button class="nav-item" data-page="servers">🖥️ <span>Servers</span></button>
+    <button class="nav-item" data-page="teams">👨‍👩‍👧‍👦 <span>Teams</span></button>
+    <button class="nav-item" data-page="settings">⚙️ <span>Settings</span></button>
     <div class="sidebar-footer">
-      <div style="margin-bottom: 8px; cursor: pointer;" onclick="window.location.href='/'">← Back to Site</div>
-      <button onclick="logout()" style="background: none; border: none; color: var(--danger); cursor: pointer; font-size: 11px; font-family: 'IBM Plex Mono', monospace;">Logout</button>
+      <div style="margin-bottom:8px;cursor:pointer;" onclick="window.location.href='/'">← Back to Site</div>
+      <button onclick="logout()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:11px;font-family:'IBM Plex Mono',monospace;">Logout</button>
     </div>
   </aside>
 
-  <!-- ===== MAIN ===== -->
   <main class="main-content">
-
     <!-- Dashboard -->
     <div class="page-section active" id="page-dashboard">
       <h1>Dashboard</h1>
       <p class="subtitle">Overview of your agency operations</p>
-
       <div class="dash-grid" id="dashStats">
-        <div class="dash-card">
-          <div class="dash-label">Total Clients</div>
-          <div class="dash-value" id="statClients">--</div>
-        </div>
-        <div class="dash-card">
-          <div class="dash-label">Total Projects</div>
-          <div class="dash-value" id="statProjects">--</div>
-        </div>
-        <div class="dash-card">
-          <div class="dash-label">Active Projects</div>
-          <div class="dash-value" id="statActive">--</div>
-        </div>
-        <div class="dash-card">
-          <div class="dash-label">Unread Messages</div>
-          <div class="dash-value" id="statUnread">--</div>
-        </div>
+        <div class="dash-card"><div class="dash-label">Total Clients</div><div class="dash-value" id="statClients">--</div></div>
+        <div class="dash-card"><div class="dash-label">Total Projects</div><div class="dash-value" id="statProjects">--</div></div>
+        <div class="dash-card"><div class="dash-label">Active Projects</div><div class="dash-value" id="statActive">--</div></div>
+        <div class="dash-card"><div class="dash-label">Unread Messages</div><div class="dash-value" id="statUnread">--</div></div>
       </div>
-
       <div class="dash-chart-area">
         <h3>Projects by Month</h3>
-        <div class="chart-bars" id="chartBars">
-          <div class="chart-loading">Loading...</div>
-        </div>
+        <div class="chart-bars" id="chartBars"><div class="chart-loading" style="color:var(--text-dim);font-size:13px;padding:20px;text-align:center;width:100%;">Loading...</div></div>
       </div>
-
       <div class="settings-grid dash-recent-grid">
-        <div class="dash-chart-area">
-          <h3>Recent Projects</h3>
-          <div id="recentProjectsList"></div>
-        </div>
-        <div class="dash-chart-area">
-          <h3>Recent Messages</h3>
-          <div id="recentMessagesList"></div>
-        </div>
+        <div class="dash-chart-area"><h3>Recent Projects</h3><div id="recentProjectsList"></div></div>
+        <div class="dash-chart-area"><h3>Recent Messages</h3><div id="recentMessagesList"></div></div>
       </div>
     </div>
 
     <!-- Projects -->
     <div class="page-section" id="page-projects">
-      <div class="page-header">
-        <h2>Manage Projects</h2>
-        <span class="expand-details">Click to expand details</span>
-      </div>
-      <div class="table-wrap">
-        <table id="projectsTable">
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Client</th>
-              <th>Department</th>
-              <th>Status</th>
-              <th>Budget</th>
-              <th>Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="projectsBody"></tbody>
-        </table>
-      </div>
+      <div class="page-header"><h2>Manage Projects</h2><span class="subtitle" style="margin:0;">Click to view details &amp; reply</span></div>
+      <div class="table-wrap"><table><thead><tr><th>Title</th><th>Client</th><th>Dept</th><th>Status</th><th>Budget</th><th>Date</th><th>Actions</th></tr></thead><tbody id="projectsBody"></tbody></table></div>
     </div>
 
     <!-- Clients -->
     <div class="page-section" id="page-clients">
-      <div class="page-header">
-        <h2>Manage Clients</h2>
-        <button class="btn btn-primary btn-sm" onclick="openAddClientModal()">+ Add Client</button>
-      </div>
-      <div class="table-wrap">
-        <table id="clientsTable">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Company</th>
-              <th>Projects</th>
-              <th>Status</th>
-              <th>Joined</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="clientsBody"></tbody>
-        </table>
-      </div>
+      <div class="page-header"><h2>Manage Clients</h2><button class="btn btn-primary btn-sm" onclick="openAddClientModal()">+ Add Client</button></div>
+      <div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Projects</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead><tbody id="clientsBody"></tbody></table></div>
     </div>
 
     <!-- Crew -->
     <div class="page-section" id="page-crew">
-      <div class="page-header">
-        <h2>Manage Crew</h2>
-        <button class="btn btn-primary btn-sm" onclick="openAddCrewModal()">+ Add Member</button>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Code</th>
-              <th>Name</th>
-              <th>Role</th>
-              <th>Department</th>
-              <th>Status</th>
-              <th>Portfolio</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="crewBody"></tbody>
-        </table>
-      </div>
+      <div class="page-header"><h2>Manage Crew</h2><button class="btn btn-primary btn-sm" onclick="openAddCrewModal()">+ Add Member</button></div>
+      <div class="table-wrap"><table><thead><tr><th>Code</th><th>Login ID</th><th>Name</th><th>Role</th><th>Dept</th><th>Status</th><th>Actions</th></tr></thead><tbody id="crewBody"></tbody></table></div>
     </div>
 
     <!-- Messages -->
     <div class="page-section" id="page-messages">
-      <div class="page-header">
-        <h2>Messages <span class="message-count" id="msgCount">(0 unread)</span></h2>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Project</th>
-              <th>Client</th>
-              <th>Message</th>
-              <th>Status</th>
-              <th>Time</th>
-             <th>Reply</th>
-            </tr>
-          </thead>
-          <tbody id="messagesBody"></tbody>
-        </table>
-      </div>
+      <div class="page-header"><h2>Messages <span class="message-count" id="msgCount">(0 unread)</span></h2></div>
+      <div class="table-wrap"><table><thead><tr><th>Project</th><th>Client</th><th>Message</th><th>Status</th><th>Time</th><th>Reply</th></tr></thead><tbody id="messagesBody"></tbody></table></div>
+    </div>
+
+    <!-- Servers -->
+    <div class="page-section" id="page-servers">
+      <div class="page-header"><h2>Manage Servers</h2><button class="btn btn-primary btn-sm" onclick="openAddServerModal()">+ Add Server</button></div>
+      <div class="table-wrap"><table><thead><tr><th>Name</th><th>IP</th><th>Port</th><th>Client</th><th>Actions</th></tr></thead><tbody id="serversBody"></tbody></table></div>
+    </div>
+
+    <!-- Teams -->
+    <div class="page-section" id="page-teams">
+      <div class="page-header"><h2>Manage Teams</h2><button class="btn btn-primary btn-sm" onclick="openAddTeamModal()">+ Add Team</button></div>
+      <div class="table-wrap"><table><thead><tr><th>Team Name</th><th>Project</th><th>Client</th><th>Members</th><th>Actions</th></tr></thead><tbody id="teamsBody"></tbody></table></div>
     </div>
 
     <!-- Settings -->
     <div class="page-section" id="page-settings">
-      <div class="page-header">
-        <h2>Site Settings</h2>
-        <button class="btn btn-primary btn-sm" onclick="saveSettings()">Save Changes</button>
-      </div>
-      <div class="settings-grid" id="settingsGrid">
+      <div class="page-header"><h2>Site Settings</h2><button class="btn btn-primary btn-sm" onclick="saveSettings()">Save Changes</button></div>
+      <div class="settings-grid">
         <div class="settings-section">
           <h3>Company Info</h3>
-          <div class="form-group">
-            <label>Company Name</label>
-            <input type="text" id="set_company_name" placeholder="The Launch Desk">
-          </div>
-          <div class="form-group">
-            <label>Tagline</label>
-            <input type="text" id="set_company_tagline" placeholder="Small crew. Real ops.">
-          </div>
-          <div class="form-group">
-            <label>Email</label>
-            <input type="email" id="set_company_email" placeholder="hello@thelaunchdesk.io">
-          </div>
+          <div class="form-group"><label>Company Name</label><input type="text" id="set_company_name"></div>
+          <div class="form-group"><label>Tagline</label><input type="text" id="set_company_tagline"></div>
+          <div class="form-group"><label>Email</label><input type="email" id="set_company_email"></div>
         </div>
         <div class="settings-section">
           <h3>Statistics</h3>
-          <div class="form-group">
-            <label>Crew Size</label>
-            <input type="text" id="set_crew_size" placeholder="07">
-          </div>
-          <div class="form-group">
-            <label>Projects Shipped</label>
-            <input type="text" id="set_projects_shipped" placeholder="40+">
-          </div>
-          <div class="form-group">
-            <label>Repeat Clients</label>
-            <input type="text" id="set_repeat_clients" placeholder="18">
-          </div>
-          <div class="form-group">
-            <label>Time Zones</label>
-            <input type="text" id="set_timezones" placeholder="03">
-          </div>
+          <div class="form-group"><label>Crew Size</label><input type="text" id="set_crew_size"></div>
+          <div class="form-group"><label>Projects Shipped</label><input type="text" id="set_projects_shipped"></div>
+          <div class="form-group"><label>Repeat Clients</label><input type="text" id="set_repeat_clients"></div>
+          <div class="form-group"><label>Time Zones</label><input type="text" id="set_timezones"></div>
         </div>
       </div>
     </div>
-
   </main>
 </div>
 
 <!-- ===== MODALS ===== -->
 <div class="modal-overlay" id="addClientModal">
   <div class="modal modal-narrow">
-    <div class="modal-header">
-      <h2>Add Client</h2>
-      <button class="modal-close" onclick="closeModal('addClientModal')">&times;</button>
-    </div>
+    <div class="modal-header"><h2>Add Client</h2><button class="modal-close" onclick="closeModal('addClientModal')">&times;</button></div>
     <form id="addClientForm">
-      <div class="form-group"><label>Name</label><input type="text" name="name" placeholder="Client name" required></div>
-      <div class="form-group"><label>Email</label><input type="email" name="email" placeholder="client@example.com" required></div>
-      <div class="form-group"><label>Password</label><input type="password" name="password" placeholder="Minimum 6 characters" required minlength="6"></div>
-      <div class="form-group"><label>Company</label><input type="text" name="company" placeholder="Company name"></div>
-      <div class="form-group"><label>Phone</label><input type="text" name="phone" placeholder="+1 (555) 123-4567"></div>
+      <div class="form-group"><label>Name</label><input type="text" name="name" required></div>
+      <div class="form-group"><label>Email</label><input type="email" name="email" required></div>
+      <div class="form-group"><label>Password</label><input type="password" name="password" required minlength="6"></div>
+      <div class="form-group"><label>Company</label><input type="text" name="company"></div>
+      <div class="form-group"><label>Phone</label><input type="text" name="phone"></div>
       <button type="submit" class="btn btn-primary btn-full">Create Client</button>
     </form>
   </div>
@@ -259,470 +268,549 @@
 
 <div class="modal-overlay" id="addCrewModal">
   <div class="modal modal-narrow">
-    <div class="modal-header">
-      <h2>Add Crew Member</h2>
-      <button class="modal-close" onclick="closeModal('addCrewModal')">&times;</button>
-    </div>
+    <div class="modal-header"><h2>Add Crew Member</h2><button class="modal-close" onclick="closeModal('addCrewModal')">&times;</button></div>
     <form id="addCrewForm">
-      <div class="form-group"><label>Name</label><input type="text" name="name" title="Crew member name" placeholder="Full name" required></div>
-      <div class="form-group"><label>Role</label><input type="text" name="role" required placeholder="e.g. Full-Stack Developer"></div>
-      <div class="form-group"><label>Code</label><input type="text" name="code" required placeholder="e.g. DEV-03"></div>
-      <div class="form-group"><label>Initials</label><input type="text" name="initials" required placeholder="e.g. JD"></div>
-      <div class="form-group"><label>Department</label>
-        <select name="department" title="Department" required>
-          <option value="LEAD">LEAD</option>
-          <option value="DEV">DEV</option>
-          <option value="OPS">OPS</option>
-          <option value="MKT">MKT</option>
-          <option value="SUPPORT">SUPPORT</option>
-          <option value="HR">HR</option>
-        </select>
-      </div>
-      <div class="form-group"><label>Bio</label><textarea name="bio" placeholder="Short description"></textarea></div>
-      <div class="form-group"><label>Portfolio URL</label><input type="url" name="portfolio_url" placeholder="https://..."></div>
+      <div class="form-group"><label>Name</label><input type="text" name="name" required></div>
+      <div class="form-group"><label>Role</label><input type="text" name="role" required></div>
+      <div class="form-group"><label>Code</label><input type="text" name="code" required></div>
+      <div class="form-group"><label>Initials</label><input type="text" name="initials" required></div>
+      <div class="form-group"><label>Department</label><select name="department" required><option value="LEAD">LEAD</option><option value="DEV">DEV</option><option value="OPS">OPS</option><option value="MKT">MKT</option><option value="SUPPORT">SUPPORT</option><option value="HR">HR</option></select></div>
+      <div class="form-group"><label>Password (leave blank for auto-generated)</label><input type="text" name="password"></div>
       <button type="submit" class="btn btn-primary btn-full">Add Member</button>
     </form>
   </div>
 </div>
 
+<div class="modal-overlay" id="addServerModal">
+  <div class="modal modal-narrow">
+    <div class="modal-header"><h2>Add Server</h2><button class="modal-close" onclick="closeModal('addServerModal')">&times;</button></div>
+    <form id="addServerForm">
+      <div class="form-group"><label>Server Name</label><input type="text" name="server_name" required></div>
+      <div class="form-group"><label>IP Address</label><input type="text" name="ip"></div>
+      <div class="form-group"><label>Port</label><input type="text" name="port"></div>
+      <div class="form-group"><label>Client ID (optional)</label><input type="number" name="client_id"></div>
+      <button type="submit" class="btn btn-primary btn-full">Add Server</button>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="addTeamModal">
+  <div class="modal modal-narrow">
+    <div class="modal-header"><h2>Add Team</h2><button class="modal-close" onclick="closeModal('addTeamModal')">&times;</button></div>
+    <form id="addTeamForm">
+      <div class="form-group"><label>Team Name</label><input type="text" name="team_name" required></div>
+      <div class="form-group"><label>Project ID</label><input type="number" name="project_id" required></div>
+      <div class="form-group"><label>Crew IDs (comma-separated)</label><input type="text" name="crew_ids"></div>
+      <button type="submit" class="btn btn-primary btn-full">Add Team</button>
+    </form>
+  </div>
+</div>
+
+<!-- Password Reset Modal -->
+<div class="modal-overlay" id="resetPwModal">
+  <div class="modal modal-narrow">
+    <div class="modal-header"><h2>Reset Password</h2><button class="modal-close" onclick="closeModal('resetPwModal')">&times;</button></div>
+    <form id="resetPwForm">
+      <div class="form-group"><label>Target</label><input type="text" id="resetPwTarget" readonly style="color:var(--text-dim);"></div>
+      <div class="form-group"><label>New Password</label><input type="password" id="resetPwNew" required minlength="6" autocomplete="new-password"></div>
+      <div class="form-group"><label>Confirm Password</label><input type="password" id="resetPwConfirm" required minlength="6" autocomplete="new-password"></div>
+      <button type="submit" class="btn btn-primary btn-full">Reset Password</button>
+    </form>
+  </div>
+</div>
+
+<!-- Project Detail / Reply Modal -->
+<div class="modal-overlay" id="projectModal">
+  <div class="modal">
+    <div class="modal-header"><h2 id="modalProjectTitle">Project</h2><button class="modal-close" onclick="closeModal('projectModal')">&times;</button></div>
+    <div id="modalProjectContent">
+      <div class="form-group"><label>Status</label><span id="modalStatus" class="pill"></span></div>
+      <div class="form-group"><label>Client</label><span id="modalClient" style="color:var(--flap);"></span></div>
+      <div class="form-group"><label>Description</label><p id="modalDescription" style="font-size:14px;color:var(--text-dim);line-height:1.6;"></p></div>
+      <div class="form-group"><label>Assigned Crew</label><span id="modalCrew" style="color:var(--flap);"></span></div>
+      <div class="form-group"><label>Timeline</label><span id="modalTimeline" style="color:var(--flap);"></span></div>
+      <div class="form-group"><label>Budget</label><span id="modalBudget" style="color:var(--amber);"></span></div>
+
+      <h3 style="font-size:16px;margin-bottom:12px;margin-top:24px;">Messages</h3>
+      <div class="modal-messages" id="modalMessages"><div style="text-align:center;color:var(--text-dim);font-size:13px;padding:20px;">Loading messages...</div></div>
+      <div class="msg-input-area">
+        <input type="text" id="msgInput" placeholder="Type your reply..." onkeydown="if(event.key==='Enter') sendAdminReply()">
+        <button class="btn btn-primary btn-sm" onclick="sendAdminReply()">Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== NOTIFICATION ===== -->
+<div class="notification" id="notification"></div>
+
 <script>
-let token = null;
-let adminUser = null;
+// ===== HELPERS =====
+function $(id) { return document.getElementById(id); }
 
-// ===== AUTH =====
-async function init() {
-  const savedToken = localStorage.getItem('tld_admin_token');
-  const savedUser = localStorage.getItem('tld_admin_user');
+function escapeHtml(str) {
+  if (!str && str !== 0) return '';
+  var d = document.createElement('div');
+  d.textContent = String(str);
+  return d.innerHTML;
+}
 
-  // Try to login automatically with stored admin credentials
-  if (savedToken && savedUser) {
-    token = savedToken;
-    adminUser = JSON.parse(savedUser);
-    document.getElementById('adminLoading').style.display = 'none';
-    document.getElementById('adminApp').style.display = 'flex';
-    loadAll();
-    return;
-  }
+function formatStatus(s) { var m = {applied:'APPLIED',discovery:'DISCOVERY',in_progress:'IN PROGRESS',review:'REVIEW',completed:'COMPLETED',cancelled:'CANCELLED'}; return m[s]||(s?s.toUpperCase():'UNKNOWN'); }
+function getStatusClass(s) { var m = {applied:'pill-amber',discovery:'pill-warning',in_progress:'',review:'pill-warning',completed:'pill-success',cancelled:'pill-danger'}; return m[s]||''; }
 
-  // Show login prompt
-  const email = prompt('Admin Email:');
-  if (!email) { window.location.href = '/'; return; }
-  const password = prompt('Admin Password:');
-  if (!password) { window.location.href = '/'; return; }
+function showNotification(msg, type) {
+  var el = $('notification');
+  el.textContent = msg;
+  el.className = 'notification ' + (type === 'error' ? 'error' : '') + ' show';
+  setTimeout(function() { el.classList.remove('show'); }, 6000);
+}
+
+function closeModal(id) { $(id).classList.remove('active'); }
+
+function authHeaders() { return { 'Authorization': 'Bearer ' + token }; }
+
+// ===== STATE =====
+var token = null;
+var adminUser = null;
+var currentProjectId = null;
+
+// ===== AUTH - real form (no prompt()) =====
+$('loginForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  var email = $('adminEmail').value.trim();
+  var password = $('adminPassword').value;
+  var btn = $('loginBtn');
+  btn.textContent = 'Logging in...';
+  btn.disabled = true;
+  $('loginError').classList.add('hidden');
 
   try {
-    const res = await fetch('/api/auth/login', {
+    var res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email: email, password: password })
     });
-    const data = await res.json();
-    if (!res.ok || data.user?.role !== 'admin') throw new Error('Invalid admin credentials');
+    var data = await res.json();
+    if (!res.ok || (data.user && data.user.role !== 'admin')) throw new Error(data.error || 'Invalid admin credentials');
 
     token = data.token;
     adminUser = data.user;
     localStorage.setItem('tld_admin_token', token);
     localStorage.setItem('tld_admin_user', JSON.stringify(adminUser));
 
-    document.getElementById('adminLoading').style.display = 'none';
-    document.getElementById('adminApp').style.display = 'flex';
+    $('authScreen').style.display = 'none';
+    $('adminApp').classList.remove('is-hidden');
+    $('adminApp').style.display = 'flex';
     loadAll();
   } catch (err) {
-    alert('Login failed: ' + err.message);
-    window.location.href = '/';
+    $('loginError').textContent = err.message;
+    $('loginError').classList.remove('hidden');
+  } finally {
+    btn.textContent = 'Login';
+    btn.disabled = false;
   }
-}
+});
+
+// Check saved session
+(function() {
+  var savedToken = localStorage.getItem('tld_admin_token');
+  var savedUser = localStorage.getItem('tld_admin_user');
+  if (savedToken && savedUser) {
+    token = savedToken;
+    adminUser = JSON.parse(savedUser);
+    $('authScreen').style.display = 'none';
+    $('adminApp').classList.remove('is-hidden');
+    $('adminApp').style.display = 'flex';
+    loadAll();
+  }
+})();
 
 function logout() {
   localStorage.removeItem('tld_admin_token');
   localStorage.removeItem('tld_admin_user');
-  window.location.href = '/';
+  $('adminApp').classList.add('is-hidden');
+  $('adminApp').style.display = '';
+  $('authScreen').style.display = 'flex';
 }
 
 // ===== NAVIGATION =====
-document.querySelectorAll('.nav-item').forEach(item => {
-  item.addEventListener('click', () => {
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+document.querySelectorAll('.nav-item').forEach(function(item) {
+  item.addEventListener('click', function() {
+    document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+    document.querySelectorAll('.page-section').forEach(function(p) { p.classList.remove('active'); });
     item.classList.add('active');
-    document.getElementById('page-' + item.dataset.page).classList.add('active');
+    $('page-' + item.dataset.page).classList.add('active');
   });
 });
 
-// ===== LOAD ALL DATA =====
+// ===== LOAD ALL =====
 async function loadAll() {
   await loadDashboard();
   await loadProjects();
   await loadClients();
   await loadCrew();
   await loadMessages();
+  await loadServers();
+  await loadTeams();
   await loadSettings();
 }
 
 // ===== DASHBOARD =====
 async function loadDashboard() {
   try {
-    const res = await fetch('/api/admin/dashboard', { headers: authHeaders() });
-    const data = await res.json();
+    var res = await fetch('/api/admin/dashboard', { headers: authHeaders() });
+    var data = await res.json();
     if (!res.ok) throw new Error(data.error);
-
-    const stats = data.stats;
-    document.getElementById('statClients').textContent = stats.total_clients;
-    document.getElementById('statProjects').textContent = stats.total_projects;
-    document.getElementById('statActive').textContent = stats.active_projects;
-    document.getElementById('statUnread').textContent = stats.unread_messages;
-
-    // Badge
-    if (stats.unread_messages > 0) {
-      document.getElementById('msgBadge').textContent = stats.unread_messages;
-      document.getElementById('msgBadge').style.display = 'inline';
-    }
-
-    // Chart
+    var stats = data.stats;
+    $('statClients').textContent = stats.total_clients;
+    $('statProjects').textContent = stats.total_projects;
+    $('statActive').textContent = stats.active_projects;
+    $('statUnread').textContent = stats.unread_messages;
+    if (stats.unread_messages > 0) { $('msgBadge').textContent = stats.unread_messages; $('msgBadge').style.display = 'inline'; } else { $('msgBadge').style.display = 'none'; }
     renderChart(data.monthly_projects || []);
-
-    // Recent projects
-    const recentHtml = (stats.recent_projects || []).map(p => `
-      <div style="padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 13px;">
-        <strong>${p.title}</strong>
-        <span style="color: var(--text-dim);">— ${p.client_name}</span>
-        <span class="pill ${getStatusClass(p.status)}" style="float:right;">${formatStatus(p.status)}</span>
-      </div>
-    `).join('') || '<div style="color: var(--text-dim); font-size: 13px;">No projects</div>';
-    document.getElementById('recentProjectsList').innerHTML = recentHtml;
-
-    // Recent messages
-    const msgHtml = (stats.recent_messages || []).map(m => `
-      <div style="padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 13px;">
-        <strong>${m.sender_name}</strong>
-        <span style="color: var(--text-dim);"> in ${m.project_title}</span>
-        <div style="color: var(--paper-dim); font-size: 12px; margin-top: 4px;">${m.content.substring(0, 80)}${m.content.length > 80 ? '...' : ''}</div>
-      </div>
-    `).join('') || '<div style="color: var(--text-dim); font-size: 13px;">No messages</div>';
-    document.getElementById('recentMessagesList').innerHTML = msgHtml;
-  } catch (err) {
-    console.error('Dashboard error:', err);
-  }
+    $('recentProjectsList').innerHTML = (stats.recent_projects||[]).map(function(p) {
+      return '<div style="padding:10px 0;border-bottom:1px solid var(--line);font-size:13px;"><strong>' + escapeHtml(p.title) + '</strong> <span style="color:var(--text-dim);">— ' + escapeHtml(p.client_name) + '</span><span class="pill ' + getStatusClass(p.status) + '" style="float:right;">' + formatStatus(p.status) + '</span></div>';
+    }).join('') || '<div style="color:var(--text-dim);font-size:13px;">No projects</div>';
+    $('recentMessagesList').innerHTML = (stats.recent_messages||[]).map(function(m) {
+      return '<div style="padding:10px 0;border-bottom:1px solid var(--line);font-size:13px;"><strong>' + escapeHtml(m.sender_name) + '</strong> <span style="color:var(--text-dim);"> in ' + escapeHtml(m.project_title) + '</span><div style="color:var(--paper-dim);font-size:12px;margin-top:4px;">' + escapeHtml(m.content).substring(0,80) + (m.content&&m.content.length>80?'...':'') + '</div></div>';
+    }).join('') || '<div style="color:var(--text-dim);font-size:13px;">No messages</div>';
+  } catch(e) { console.error('Dashboard error:', e); }
 }
 
-function renderChart(monthlyData) {
-  const container = document.getElementById('chartBars');
-  if (!monthlyData || monthlyData.length === 0) {
-    container.innerHTML = '<div style="color: var(--text-dim); font-size: 13px;">No data yet</div>';
-    return;
-  }
-
-  const maxVal = Math.max(...monthlyData.map(d => d.count), 1);
-  container.innerHTML = monthlyData.map(d => {
-    const height = Math.max(4, (d.count / maxVal) * 120);
-    return `
-      <div class="chart-bar" style="height: ${height}px;">
-        <span class="bar-val">${d.count}</span>
-        <span class="bar-label">${d.month?.slice(-2) || ''}</span>
-      </div>
-    `;
+function renderChart(monthly) {
+  var c = $('chartBars');
+  if (!monthly||monthly.length===0) { c.innerHTML = '<div style="color:var(--text-dim);font-size:13px;">No data yet</div>'; return; }
+  var max = Math.max.apply(null, monthly.map(function(d) { return d.count; }), 1);
+  c.innerHTML = monthly.map(function(d) {
+    var h = Math.max(4, (d.count/max)*120);
+    return '<div class="chart-bar" style="height:' + h + 'px;"><span class="bar-val">' + d.count + '</span><span class="bar-label">' + (d.month ? d.month.slice(-2) : '') + '</span></div>';
   }).join('');
 }
 
 // ===== PROJECTS =====
 async function loadProjects() {
   try {
-    const res = await fetch('/api/projects', { headers: authHeaders() });
-    const data = await res.json();
-    const projects = data.projects || [];
-
-    document.getElementById('projectsBody').innerHTML = projects.map(p => `
-      <tr>
-        <td><strong>${p.title}</strong></td>
-        <td>${p.client_name || 'N/A'}</td>
-        <td>${p.department || 'General'}</td>
-        <td>
-          <select class="status-select" onchange="updateProjectStatus(${p.id}, this.value)">
-            <option value="applied" ${p.status === 'applied' ? 'selected' : ''}>Applied</option>
-            <option value="discovery" ${p.status === 'discovery' ? 'selected' : ''}>Discovery</option>
-            <option value="in_progress" ${p.status === 'in_progress' ? 'selected' : ''}>In Progress</option>
-            <option value="review" ${p.status === 'review' ? 'selected' : ''}>Review</option>
-            <option value="completed" ${p.status === 'completed' ? 'selected' : ''}>Completed</option>
-            <option value="cancelled" ${p.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
-          </select>
-        </td>
-        <td>${p.budget || '--'}</td>
-        <td>${new Date(p.created_at).toLocaleDateString()}</td>
-        <td>
-          <div class="table-actions">
-            <button class="btn btn-ghost btn-sm" onclick="viewProjectMessages(${p.id})">💬</button>
-          </div>
-        </td>
-      </tr>
-    `).join('');
-
-    // Update badge
-    const active = projects.filter(p => ['applied', 'discovery', 'in_progress'].includes(p.status)).length;
-    const badge = document.getElementById('projectBadge');
-    if (active > 0) { badge.textContent = active; badge.style.display = 'inline'; }
-  } catch (err) {
-    console.error('Projects error:', err);
-  }
+    var res = await fetch('/api/projects', { headers: authHeaders() });
+    var data = await res.json();
+    var projects = data.projects || [];
+    $('projectsBody').innerHTML = projects.map(function(p) {
+      return '<tr><td><strong>' + escapeHtml(p.title) + '</strong></td><td>' + escapeHtml(p.client_name||'N/A') + '</td><td>' + escapeHtml(p.department||'General') + '</td><td><select class="status-select" onchange="updateProjectStatus(' + p.id + ',this.value)">' +
+        '<option value="applied"' + (p.status==='applied'?' selected':'') + '>Applied</option>' +
+        '<option value="discovery"' + (p.status==='discovery'?' selected':'') + '>Discovery</option>' +
+        '<option value="in_progress"' + (p.status==='in_progress'?' selected':'') + '>In Progress</option>' +
+        '<option value="review"' + (p.status==='review'?' selected':'') + '>Review</option>' +
+        '<option value="completed"' + (p.status==='completed'?' selected':'') + '>Completed</option>' +
+        '<option value="cancelled"' + (p.status==='cancelled'?' selected':'') + '>Cancelled</option>' +
+        '</select></td><td>' + escapeHtml(p.budget||'--') + '</td><td>' + new Date(p.created_at).toLocaleDateString() + '</td>' +
+        '<td><div class="table-actions"><button class="btn btn-ghost btn-sm" onclick="viewProjectMessages(' + p.id + ')">💬 Reply</button></div></td></tr>';
+    }).join('');
+    var active = projects.filter(function(p) { return ['applied','discovery','in_progress'].includes(p.status); }).length;
+    var badge = $('projectBadge');
+    if (active > 0) { badge.textContent = active; badge.style.display = 'inline'; } else { badge.style.display = 'none'; }
+  } catch(e) { console.error('Projects error:', e); }
 }
 
 async function updateProjectStatus(id, status) {
   try {
-    const res = await fetch(`/api/projects/${id}`, {
-      method: 'PUT',
-      headers: { ...authHeaders(), 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status })
-    });
+    var res = await fetch('/api/projects/' + id, { method: 'PUT', headers: Object.assign(authHeaders(), {'Content-Type':'application/json'}), body: JSON.stringify({status:status}) });
     if (!res.ok) throw new Error('Update failed');
     await loadDashboard();
-  } catch (err) {
-    alert('Failed to update status');
-  }
+  } catch(e) { showNotification('Failed to update status', 'error'); }
 }
 
 // ===== CLIENTS =====
 async function loadClients() {
   try {
-    const res = await fetch('/api/clients', { headers: authHeaders() });
-    const data = await res.json();
-    const clients = data.clients || [];
-
-    document.getElementById('clientsBody').innerHTML = clients.map(c => `
-      <tr>
-        <td><strong>${c.name}</strong></td>
-        <td>${c.email}</td>
-        <td>${c.company || '--'}</td>
-        <td>${c.project_count || 0}</td>
-        <td><span class="pill ${c.status === 'active' ? 'pill-success' : 'pill-danger'}">${c.status?.toUpperCase() || 'ACTIVE'}</span></td>
-        <td>${new Date(c.created_at).toLocaleDateString()}</td>
-        <td>
-          <div class="table-actions">
-            <button class="btn btn-ghost btn-sm" onclick="toggleClientStatus(${c.id}, '${c.status === 'active' ? 'inactive' : 'active'}')">${c.status === 'active' ? 'Disable' : 'Enable'}</button>
-          </div>
-        </td>
-      </tr>
-    `).join('');
-  } catch (err) {
-    console.error('Clients error:', err);
-  }
+    var res = await fetch('/api/clients', { headers: authHeaders() });
+    var data = await res.json();
+    var clients = data.clients || [];
+    $('clientsBody').innerHTML = clients.map(function(c) {
+      return '<tr><td><strong>' + escapeHtml(c.name) + '</strong></td><td>' + escapeHtml(c.email) + '</td><td>' + escapeHtml(c.company||'--') + '</td><td>' + (c.project_count||0) + '</td><td><span class="pill ' + (c.status==='active'?'pill-success':'pill-danger') + '">' + (c.status||'ACTIVE').toUpperCase() + '</span></td><td>' + new Date(c.created_at).toLocaleDateString() + '</td><td><div class="table-actions"><button class="btn btn-ghost btn-sm" onclick="toggleClientStatus(' + c.id + ',\'' + (c.status==='active'?'inactive':'active') + '\')">' + (c.status==='active'?'Disable':'Enable') + '</button><button class="btn btn-ghost btn-sm" onclick="resetClientPassword(' + c.id + ',\'' + escapeHtml(c.email) + '\')">🔑 Reset PW</button></div></td></tr>';
+    }).join('');
+  } catch(e) { console.error('Clients error:', e); }
 }
 
 async function toggleClientStatus(id, status) {
+  try { var res = await fetch('/api/clients/' + id, { method: 'PUT', headers: Object.assign(authHeaders(), {'Content-Type':'application/json'}), body: JSON.stringify({status:status}) }); if (!res.ok) throw new Error('Update failed'); await loadClients(); } catch(e) { showNotification('Failed to update', 'error'); }
+}
+
+// ===== PASSWORD RESET MODAL (replaces prompt()) =====
+var resetContext = null; // { type: 'client'|'crew', id, label }
+
+function openResetPwModal(type, id, label) {
+  resetContext = { type: type, id: id, label: label };
+  $('resetPwTarget').value = label;
+  $('resetPwNew').value = '';
+  $('resetPwConfirm').value = '';
+  $('resetPwModal').classList.add('active');
+  setTimeout(function() { $('resetPwNew').focus(); }, 50);
+}
+
+$('resetPwForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  if (!resetContext) return;
+  var newPw = $('resetPwNew').value;
+  var confirmPw = $('resetPwConfirm').value;
+  if (newPw.length < 6) { showNotification('Password must be at least 6 characters', 'error'); return; }
+  if (newPw !== confirmPw) { showNotification('Passwords do not match', 'error'); return; }
+
   try {
-    const res = await fetch(`/api/clients/${id}`, {
-      method: 'PUT',
-      headers: { ...authHeaders(), 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status })
-    });
-    if (!res.ok) throw new Error('Update failed');
-    await loadClients();
-  } catch (err) {
-    alert('Failed to update client status');
-  }
+    var res;
+    if (resetContext.type === 'client') {
+      res = await fetch('/api/admin/reset-password', {
+        method: 'POST',
+        headers: Object.assign(authHeaders(), {'Content-Type':'application/json'}),
+        body: JSON.stringify({ type: 'client', email: resetContext.label, new_password: newPw })
+      });
+    } else {
+      res = await fetch('/api/crew/' + resetContext.id + '/password', {
+        method: 'PUT',
+        headers: Object.assign(authHeaders(), {'Content-Type':'application/json'}),
+        body: JSON.stringify({ password: newPw })
+      });
+    }
+    if (!res.ok) {
+      var errData = await res.json().catch(function() { return {}; });
+      throw new Error(errData.error || 'Reset failed');
+    }
+    closeModal('resetPwModal');
+    this.reset();
+    showNotification('Password reset successful for ' + resetContext.label, 'success');
+  } catch(e) { showNotification(e.message, 'error'); }
+});
+
+async function resetClientPassword(id, email) {
+  openResetPwModal('client', id, email);
+}
+
+async function resetCrewPassword(id, identifier) {
+  openResetPwModal('crew', id, identifier);
 }
 
 // ===== CREW =====
 async function loadCrew() {
   try {
-    const res = await fetch('/api/crew', { headers: authHeaders() });
-    const data = await res.json();
-    const crew = data.crew || [];
-
-    document.getElementById('crewBody').innerHTML = crew.map(m => `
-      <tr>
-        <td><span class="mono" style="color: var(--teal);">${m.code}</span></td>
-        <td><strong>${m.name}</strong></td>
-        <td>${m.role}</td>
-        <td>${m.department}</td>
-        <td><span class="pill ${m.status === 'ON DECK' ? 'pill-success' : 'pill-warning'}">${m.status || 'ON DECK'}</span></td>
-        <td>${m.portfolio_url ? `<a href="${m.portfolio_url}" target="_blank" style="color: var(--amber);">Link</a>` : '--'}</td>
-        <td>
-          <div class="table-actions">
-            <button class="btn btn-ghost btn-sm" onclick="deleteCrewMember(${m.id})">Delete</button>
-          </div>
-        </td>
-      </tr>
-    `).join('');
-  } catch (err) {
-    console.error('Crew error:', err);
-  }
+    var res = await fetch('/api/crew', { headers: authHeaders() });
+    var data = await res.json();
+    var crew = data.crew || [];
+    $('crewBody').innerHTML = crew.map(function(m) {
+      return '<tr><td><span class="mono" style="color:var(--teal);">' + escapeHtml(m.code) + '</span></td><td><span class="mono" style="color:var(--amber);">' + escapeHtml(m.login_id||'') + '</span></td><td><strong>' + escapeHtml(m.name) + '</strong></td><td>' + escapeHtml(m.role) + '</td><td>' + escapeHtml(m.department) + '</td><td><span class="pill ' + (m.status==='ON DECK'||m.status==='active'?'pill-success':'pill-warning') + '">' + escapeHtml(m.status||'ON DECK') + '</span></td><td><div class="table-actions"><button class="btn btn-ghost btn-sm" onclick="resetCrewPassword(' + m.id + ',\'' + escapeHtml(m.email||m.login_id) + '\')">🔑</button><button class="btn btn-ghost btn-sm" style="color:var(--danger);" onclick="deleteCrewMember(' + m.id + ')">Delete</button></div></td></tr>';
+    }).join('');
+  } catch(e) { console.error('Crew error:', e); }
 }
 
 async function deleteCrewMember(id) {
   if (!confirm('Delete this crew member?')) return;
-  try {
-    const res = await fetch(`/api/crew/${id}`, { method: 'DELETE', headers: authHeaders() });
-    if (!res.ok) throw new Error('Delete failed');
-    await loadCrew();
-  } catch (err) {
-    alert('Delete failed');
-  }
+  try { var res = await fetch('/api/crew/' + id, { method: 'DELETE', headers: authHeaders() }); if (!res.ok) throw new Error('Delete failed'); await loadCrew(); } catch(e) { showNotification('Delete failed', 'error'); }
 }
 
-// ===== MESSAGES =====
+// ===== MESSAGES (single-query endpoint) =====
 async function loadMessages() {
   try {
-    // Load all projects to get their messages
-    const res = await fetch('/api/projects', { headers: authHeaders() });
-    const data = await res.json();
-    const projects = data.projects || [];
-    const allMessages = [];
+    var res = await fetch('/api/admin/messages', { headers: authHeaders() });
+    var data = await res.json();
+    var messages = data.messages || [];
+    $('messagesBody').innerHTML = messages.slice(0, 50).map(function(m) {
+      return '<tr><td>' + escapeHtml(m.project_title||'N/A') + '</td><td>' + escapeHtml(m.sender_name||m.client_name) + '</td><td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(m.content) + '</td><td>' + (m.is_read ? '<span class="pill">READ</span>' : '<span class="pill pill-warning">NEW</span>') + '</td><td style="white-space:nowrap;">' + new Date(m.created_at).toLocaleString() + '</td><td><button class="btn btn-ghost btn-sm" onclick="viewProjectMessages(' + m.project_id + ')">Reply</button></td></tr>';
+    }).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--text-dim);">No messages</td></tr>';
+    var unread = messages.filter(function(m) { return !m.is_read && m.sender_role === 'client'; }).length;
+    $('msgCount').textContent = '(' + unread + ' unread)';
+  } catch(e) { console.error('Messages error:', e); }
+}
 
-    for (const p of projects) {
-      const msgRes = await fetch(`/api/projects/${p.id}/messages`, { headers: authHeaders() });
-      const msgData = await msgRes.json();
-      if (msgData.messages) {
-        msgData.messages.forEach(m => {
-          allMessages.push({ ...m, project_title: p.title, client_name: p.client_name });
-        });
-      }
+// ===== PROJECT DETAIL / REPLY MODAL =====
+async function viewProjectMessages(projectId) {
+  currentProjectId = projectId;
+  try {
+    var res = await fetch('/api/projects/' + projectId, { headers: authHeaders() });
+    var data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    var p = data.project;
+    $('modalProjectTitle').textContent = p.title;
+    $('modalStatus').textContent = formatStatus(p.status);
+    $('modalStatus').className = 'pill ' + getStatusClass(p.status);
+    $('modalClient').textContent = p.client_name || 'Client';
+    $('modalDescription').textContent = p.description || 'No description provided.';
+    $('modalCrew').textContent = p.assigned_crew_details ? p.assigned_crew_details.map(function(c) { return c.name; }).join(', ') : 'Not assigned';
+    $('modalTimeline').textContent = p.timeline || 'Not specified';
+    $('modalBudget').textContent = p.budget || 'Not specified';
+    $('projectModal').classList.add('active');
+    await loadModalMessages(projectId);
+  } catch(e) { showNotification(e.message, 'error'); }
+}
+
+async function loadModalMessages(projectId) {
+  try {
+    var res = await fetch('/api/projects/' + projectId + '/messages', { headers: authHeaders() });
+    var data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    var container = $('modalMessages');
+    var messages = data.messages || [];
+    if (messages.length === 0) {
+      container.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-size:13px;padding:20px;">No messages yet.</div>';
+    } else {
+      container.innerHTML = messages.map(function(m) {
+        var cls = m.sender_role === 'client' ? 'client' : 'admin';
+        return '<div class="msg ' + cls + '"><strong>' + escapeHtml(m.sender_name||m.sender_role) + '</strong>: ' + escapeHtml(m.content) + '<div class="msg-meta">' + new Date(m.created_at).toLocaleString() + '</div></div>';
+      }).join('');
     }
-
-    allMessages.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
-    document.getElementById('messagesBody').innerHTML = allMessages.slice(0, 20).map(m => `
-      <tr>
-        <td>${m.project_title || 'N/A'}</td>
-        <td>${m.sender_name}</td>
-        <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${m.content}</td>
-        <td>${m.is_read ? '<span class="pill">READ</span>' : '<span class="pill pill-warning">NEW</span>'}</td>
-        <td style="white-space: nowrap;">${new Date(m.created_at).toLocaleString()}</td>
-        <td><button class="btn btn-ghost btn-sm" onclick="replyToMessage(${m.project_id})">Reply</button></td>
-      </tr>
-    `).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--text-dim);">No messages</td></tr>';
-
-    // Update badge
-    const unread = allMessages.filter(m => !m.is_read && m.sender_role === 'client').length;
-    document.getElementById('msgCount').textContent = `(${unread} unread)`;
-  } catch (err) {
-    console.error('Messages error:', err);
-  }
+    container.scrollTop = container.scrollHeight;
+  } catch(e) { $('modalMessages').innerHTML = '<div style="text-align:center;color:var(--danger);font-size:13px;padding:20px;">Failed to load messages.</div>'; }
 }
 
-function replyToMessage(projectId) {
-  // Navigate to projects tab and open the project
-  document.querySelector('[data-page="projects"]').click();
-  viewProjectMessages(projectId);
+async function sendAdminReply() {
+  var input = $('msgInput');
+  var content = input.value.trim();
+  if (!content || !currentProjectId) return;
+  input.value = '';
+  try {
+    var res = await fetch('/api/projects/' + currentProjectId + '/messages', {
+      method: 'POST',
+      headers: Object.assign(authHeaders(), {'Content-Type':'application/json'}),
+      body: JSON.stringify({ content: content })
+    });
+    var data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to send');
+    await loadModalMessages(currentProjectId);
+    await loadMessages();
+  } catch(e) { showNotification(e.message, 'error'); input.value = content; }
 }
 
-function viewProjectMessages(projectId) {
-  alert(`Open project #${projectId} and use the client portal to reply to messages.\n\nOr use the API to send a message to project ${projectId}.`);
+// ===== SERVERS =====
+async function loadServers() {
+  try {
+    var res = await fetch('/api/admin/servers', { headers: authHeaders() });
+    var data = await res.json();
+    var servers = data.servers || [];
+    $('serversBody').innerHTML = servers.map(function(s) {
+      return '<tr><td><strong>' + escapeHtml(s.server_name) + '</strong></td><td>' + escapeHtml(s.ip||'--') + '</td><td>' + escapeHtml(s.port||'--') + '</td><td>' + escapeHtml(s.client_name||'Unassigned') + '</td><td><div class="table-actions"><button class="btn btn-ghost btn-sm" style="color:var(--danger);" onclick="deleteServer(' + s.id + ')">Delete</button></div></td></tr>';
+    }).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--text-dim);">No servers</td></tr>';
+  } catch(e) { console.error('Servers error:', e); }
+}
+
+async function deleteServer(id) {
+  if (!confirm('Delete this server?')) return;
+  try { var res = await fetch('/api/admin/servers/' + id, { method: 'DELETE', headers: authHeaders() }); if (!res.ok) throw new Error('Delete failed'); await loadServers(); } catch(e) { showNotification('Delete failed', 'error'); }
+}
+
+// ===== TEAMS =====
+async function loadTeams() {
+  try {
+    var res = await fetch('/api/admin/teams', { headers: authHeaders() });
+    var data = await res.json();
+    var teams = data.teams || [];
+    $('teamsBody').innerHTML = teams.map(function(t) {
+      var memberNames = (t.members||[]).map(function(m) { return m.name; }).join(', ');
+      return '<tr><td><strong>' + escapeHtml(t.team_name) + '</strong></td><td>' + escapeHtml(t.project_title||'N/A') + '</td><td>' + escapeHtml(t.client_name||'N/A') + '</td><td>' + escapeHtml(memberNames||'None') + '</td><td><div class="table-actions"><button class="btn btn-ghost btn-sm" style="color:var(--danger);" onclick="deleteTeam(' + t.id + ')">Delete</button></div></td></tr>';
+    }).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--text-dim);">No teams</td></tr>';
+  } catch(e) { console.error('Teams error:', e); }
+}
+
+async function deleteTeam(id) {
+  if (!confirm('Delete this team?')) return;
+  try { var res = await fetch('/api/admin/teams/' + id, { method: 'DELETE', headers: authHeaders() }); if (!res.ok) throw new Error('Delete failed'); await loadTeams(); } catch(e) { showNotification('Delete failed', 'error'); }
 }
 
 // ===== SETTINGS =====
 async function loadSettings() {
   try {
-    const res = await fetch('/api/admin/settings', { headers: authHeaders() });
-    const data = await res.json();
-    const s = data.settings || {};
-
-    document.getElementById('set_company_name').value = s.company_name || '';
-    document.getElementById('set_company_tagline').value = s.company_tagline || '';
-    document.getElementById('set_company_email').value = s.company_email || '';
-    document.getElementById('set_crew_size').value = s.crew_size || '07';
-    document.getElementById('set_projects_shipped').value = s.projects_shipped || '40+';
-    document.getElementById('set_repeat_clients').value = s.repeat_clients || '18';
-    document.getElementById('set_timezones').value = s.timezones || '03';
-  } catch (err) {
-    console.error('Settings error:', err);
-  }
+    var res = await fetch('/api/admin/settings', { headers: authHeaders() });
+    var data = await res.json();
+    var s = data.settings || {};
+    $('set_company_name').value = s.company_name || '';
+    $('set_company_tagline').value = s.company_tagline || '';
+    $('set_company_email').value = s.company_email || '';
+    $('set_crew_size').value = s.crew_size || '07';
+    $('set_projects_shipped').value = s.projects_shipped || '40+';
+    $('set_repeat_clients').value = s.repeat_clients || '18';
+    $('set_timezones').value = s.timezones || '03';
+  } catch(e) { console.error('Settings error:', e); }
 }
 
 async function saveSettings() {
-  const settings = {
-    company_name: document.getElementById('set_company_name').value,
-    company_tagline: document.getElementById('set_company_tagline').value,
-    company_email: document.getElementById('set_company_email').value,
-    crew_size: document.getElementById('set_crew_size').value,
-    projects_shipped: document.getElementById('set_projects_shipped').value,
-    repeat_clients: document.getElementById('set_repeat_clients').value,
-    timezones: document.getElementById('set_timezones').value
+  var settings = {
+    company_name: $('set_company_name').value,
+    company_tagline: $('set_company_tagline').value,
+    company_email: $('set_company_email').value,
+    crew_size: $('set_crew_size').value,
+    projects_shipped: $('set_projects_shipped').value,
+    repeat_clients: $('set_repeat_clients').value,
+    timezones: $('set_timezones').value
   };
-
   try {
-    const res = await fetch('/api/admin/settings', {
-      method: 'PUT',
-      headers: { ...authHeaders(), 'Content-Type': 'application/json' },
-      body: JSON.stringify({ settings })
-    });
+    var res = await fetch('/api/admin/settings', { method: 'PUT', headers: Object.assign(authHeaders(), {'Content-Type':'application/json'}), body: JSON.stringify({settings:settings}) });
     if (!res.ok) throw new Error('Save failed');
-    alert('Settings saved!');
-  } catch (err) {
-    alert('Failed to save settings');
-  }
+    showNotification('Settings saved!', 'success');
+  } catch(e) { showNotification('Failed to save settings', 'error'); }
 }
 
 // ===== ADD CLIENT =====
-function openAddClientModal() { document.getElementById('addClientModal').classList.add('active'); }
-
-document.getElementById('addClientForm').addEventListener('submit', async (e) => {
+function openAddClientModal() { $('addClientModal').classList.add('active'); }
+$('addClientForm').addEventListener('submit', async function(e) {
   e.preventDefault();
-  const data = Object.fromEntries(new FormData(e.target));
-
+  var data = Object.fromEntries(new FormData(e.target));
   try {
-    const res = await fetch('/api/clients', {
-      method: 'POST',
-      headers: { ...authHeaders(), 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    const result = await res.json();
+    var res = await fetch('/api/clients', { method: 'POST', headers: Object.assign(authHeaders(), {'Content-Type':'application/json'}), body: JSON.stringify(data) });
+    var result = await res.json();
     if (!res.ok) throw new Error(result.error);
-
     closeModal('addClientModal');
-    document.getElementById('addClientForm').reset();
-    alert(`Client created! API Key: ${result.api_key}`);
-    await loadClients();
-    await loadDashboard();
-  } catch (err) {
-    alert('Error: ' + err.message);
-  }
+    this.reset();
+    showNotification('Client created! API Key: ' + result.api_key, 'success');
+    await loadClients(); await loadDashboard();
+  } catch(e) { showNotification('Error: ' + e.message, 'error'); }
 });
 
 // ===== ADD CREW =====
-function openAddCrewModal() { document.getElementById('addCrewModal').classList.add('active'); }
-
-document.getElementById('addCrewForm').addEventListener('submit', async (e) => {
+function openAddCrewModal() { $('addCrewModal').classList.add('active'); }
+$('addCrewForm').addEventListener('submit', async function(e) {
   e.preventDefault();
-  const data = Object.fromEntries(new FormData(e.target));
-
+  var data = Object.fromEntries(new FormData(e.target));
   try {
-    const res = await fetch('/api/crew', {
-      method: 'POST',
-      headers: { ...authHeaders(), 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    const result = await res.json();
+    var res = await fetch('/api/crew', { method: 'POST', headers: Object.assign(authHeaders(), {'Content-Type':'application/json'}), body: JSON.stringify(data) });
+    var result = await res.json();
     if (!res.ok) throw new Error(result.error);
-
     closeModal('addCrewModal');
-    document.getElementById('addCrewForm').reset();
+    this.reset();
+    showNotification('Crew member added! Login ID: ' + (result.login_id||'auto') + ', Default PW: ' + (result.default_password||'auto'), 'success');
     await loadCrew();
-  } catch (err) {
-    alert('Error: ' + err.message);
-  }
+  } catch(e) { showNotification('Error: ' + e.message, 'error'); }
 });
 
-// ===== HELPERS =====
-function authHeaders() {
-  return { 'Authorization': `Bearer ${token}` };
-}
+// ===== ADD SERVER =====
+function openAddServerModal() { $('addServerModal').classList.add('active'); }
+$('addServerForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  var data = Object.fromEntries(new FormData(e.target));
+  if (data.client_id) data.client_id = parseInt(data.client_id);
+  else delete data.client_id;
+  try {
+    var res = await fetch('/api/admin/servers', { method: 'POST', headers: Object.assign(authHeaders(), {'Content-Type':'application/json'}), body: JSON.stringify(data) });
+    var result = await res.json();
+    if (!res.ok) throw new Error(result.error);
+    closeModal('addServerModal');
+    this.reset();
+    showNotification('Server added!', 'success');
+    await loadServers();
+  } catch(e) { showNotification('Error: ' + e.message, 'error'); }
+});
 
-function closeModal(id) {
-  document.getElementById(id).classList.remove('active');
-}
-
-function formatStatus(status) {
-  const map = { 'applied': 'APPLIED', 'discovery': 'DISCOVERY', 'in_progress': 'IN PROGRESS', 'review': 'REVIEW', 'completed': 'COMPLETED', 'cancelled': 'CANCELLED' };
-  return map[status] || status?.toUpperCase() || 'UNKNOWN';
-}
-
-function getStatusClass(status) {
-  const map = { 'applied': 'pill-amber', 'discovery': 'pill-warning', 'in_progress': '', 'review': 'pill-warning', 'completed': 'pill-success', 'cancelled': 'pill-danger' };
-  return map[status] || '';
-}
-
-// ===== INIT =====
-init();
+// ===== ADD TEAM =====
+function openAddTeamModal() { $('addTeamModal').classList.add('active'); }
+$('addTeamForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  var data = Object.fromEntries(new FormData(e.target));
+  data.project_id = parseInt(data.project_id);
+  data.crew_ids = (data.crew_ids||'').split(',').map(function(s) { return parseInt(s.trim()); }).filter(function(n) { return !isNaN(n); });
+  try {
+    var res = await fetch('/api/admin/teams', { method: 'POST', headers: Object.assign(authHeaders(), {'Content-Type':'application/json'}), body: JSON.stringify(data) });
+    var result = await res.json();
+    if (!res.ok) throw new Error(result.error);
+    closeModal('addTeamModal');
+    this.reset();
+    showNotification('Team created!', 'success');
+    await loadTeams();
+  } catch(e) { showNotification('Error: ' + e.message, 'error'); }
+});
 </script>
 </body>
 </html>
-

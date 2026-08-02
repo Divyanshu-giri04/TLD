@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crew Portal — The Launch Desk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --board: #14181F; --board-2: #1B212B; --flap: #EFE9DD; --ink: #1B2430;
+      --amber: #E8A33D; --teal: #3E7C82; --line: #333B48; --paper-dim: #B9B2A2;
+      --text-dim: #8B93A3; --success: #5FD87A; --danger: #E85A5A; --warning: #F0C94D;
+      --radius: 6px; --transition: 0.2s ease;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--board); color: var(--flap); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; line-height: 1.6; }
+    h1,h2,h3,h4,h5 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.01em; }
+    .mono { font-family: 'IBM Plex Mono', monospace; }
+    a { color: inherit; text-decoration: none; }
+    input,textarea,select { font-family: 'Inter', sans-serif; }
+    .btn { font-family: 'IBM Plex Mono',monospace; font-size: 13px; letter-spacing: 0.03em; padding: 13px 22px; border-radius: 3px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; border: 1px solid transparent; cursor: pointer; transition: transform var(--transition), background var(--transition), border-color var(--transition); }
+    .btn-primary { background: var(--amber); color: #20160A; }
+    .btn-primary:hover { transform: translateY(-1px); background: #f0ae4c; }
+    .btn-ghost { border-color: var(--line); color: var(--flap); background: transparent; }
+    .btn-ghost:hover { border-color: var(--teal); background: rgba(62,124,130,0.12); }
+    .btn-sm { padding: 8px 14px; font-size: 11px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-family: 'IBM Plex Mono',monospace; font-size: 11px; letter-spacing: 0.06em; color: var(--text-dim); margin-bottom: 6px; text-transform: uppercase; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 11px 14px; background: var(--board); border: 1px solid var(--line); border-radius: 4px; color: var(--flap); font-size: 14px; transition: border-color var(--transition); }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--amber); }
+    .form-group textarea { min-height: 100px; resize: vertical; }
+    .pill { display: inline-flex; align-items: center; gap: 6px; font-family: 'IBM Plex Mono',monospace; font-size: 10px; letter-spacing: 0.06em; padding: 4px 10px; border-radius: 3px; border: 1px solid var(--line); background: rgba(255,255,255,0.04); color: var(--text-dim); }
+    .pill-success { color: var(--success); border-color: #2E4A34; background: #182119; }
+    .pill-warning { color: var(--warning); border-color: #4A442E; background: #1F1C14; }
+    .pill-danger { color: var(--danger); border-color: #4A2E2E; background: #1F1414; }
+    .pill-amber { color: var(--amber); border-color: #4A3E2E; background: #1F1C14; }
+    .notification { position: fixed; bottom: 24px; right: 24px; background: var(--board-2); border: 1px solid var(--success); color: var(--success); padding: 16px 24px; border-radius: 6px; font-size: 13px; font-family: 'IBM Plex Mono',monospace; transform: translateY(120px); opacity: 0; transition: all 0.3s ease; z-index: 100; }
+    .notification.show { transform: translateY(0); opacity: 1; }
+    .notification.error { border-color: var(--danger); color: var(--danger); }
+    .card { background: var(--board-2); border: 1px solid var(--line); border-radius: var(--radius); }
+    .auth-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+    .auth-box { width: 100%; max-width: 420px; background: var(--board-2); border: 1px solid var(--line); border-radius: 10px; padding: 40px 32px; }
+    .auth-box .logo { text-align: center; font-size: 18px; margin-bottom: 8px; }
+    .auth-box .logo span { color: var(--amber); }
+    .auth-sub { text-align: center; color: var(--text-dim); font-size: 13px; margin-bottom: 24px; }
+    .auth-switch { text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-dim); }
+    .auth-switch a { color: var(--amber); cursor: pointer; }
+    .alert { padding: 14px 18px; border-radius: 4px; font-size: 13px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+    .alert-error { background: #1F1414; border: 1px solid #4A2E2E; color: var(--danger); }
+    .alert-success { background: #182119; border: 1px solid #2E4A34; color: var(--success); }
+    .dashboard { display: none; }
+    .dashboard.active { display: block; }
+    .portal-wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+    .portal-nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid var(--line); margin-bottom: 32px; }
+    .portal-nav .logo { font-size: 15px; }
+    .portal-nav-right { display: flex; align-items: center; gap: 20px; }
+    .portal-nav-right .user-info { font-size: 12px; color: var(--text-dim); font-family: 'IBM Plex Mono',monospace; }
+    .portal-nav-right .logout-btn { font-size: 11px; color: var(--danger); cursor: pointer; background: none; border: 1px solid var(--line); padding: 6px 12px; border-radius: 3px; font-family: 'IBM Plex Mono',monospace; }
+    .portal-greeting { margin-bottom: 24px; }
+    .portal-greeting h1 { font-size: 24px; margin-bottom: 6px; }
+    .portal-greeting p { color: var(--text-dim); font-size: 14px; }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .section-header h2 { font-size: 18px; }
+    .project-card { background: var(--board-2); border: 1px solid var(--line); border-radius: 6px; padding: 20px; margin-bottom: 14px; transition: border-color .15s; cursor: pointer; }
+    .project-card:hover { border-color: var(--teal); }
+    .project-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .project-card-title { font-size: 16px; font-weight: 600; }
+    .project-card-desc { font-size: 13px; color: var(--text-dim); margin-bottom: 12px; line-height: 1.5; }
+    .project-card-meta { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--text-dim); font-family: 'IBM Plex Mono',monospace; }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: var(--board-2); border: 1px solid var(--line); border-radius: 10px; width: 100%; max-width: 680px; max-height: 90vh; overflow-y: auto; padding: 32px; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .modal-header h2 { font-size: 20px; }
+    .modal-close { background: none; border: none; color: var(--text-dim); font-size: 24px; cursor: pointer; padding: 4px; }
+    .modal-messages { max-height: 400px; overflow-y: auto; margin-bottom: 16px; padding: 12px; background: var(--board); border-radius: 6px; border: 1px solid var(--line); }
+    .msg { margin-bottom: 14px; padding: 12px 14px; border-radius: 6px; font-size: 13px; line-height: 1.5; }
+    .msg.client { background: rgba(62,124,130,0.1); border: 1px solid rgba(62,124,130,0.2); margin-left: 40px; }
+    .msg.admin, .msg.crew { background: rgba(232,163,61,0.08); border: 1px solid rgba(232,163,61,0.15); margin-right: 40px; }
+    .msg .msg-meta { font-size: 10px; color: var(--text-dim); margin-top: 6px; font-family: 'IBM Plex Mono',monospace; display: flex; gap: 8px; }
+    .msg-input-area { display: flex; gap: 10px; }
+    .msg-input-area input { flex: 1; padding: 11px 14px; background: var(--board); border: 1px solid var(--line); border-radius: 4px; color: var(--flap); font-size: 13px; }
+    .msg-input-area input:focus { outline: none; border-color: var(--amber); }
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-dim); }
+    .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+    .empty-state h3 { font-size: 18px; margin-bottom: 8px; color: var(--flap); }
+    .empty-state p { font-size: 14px; max-width: 400px; margin: 0 auto 20px; }
+  </style>
+</head>
+<body>
+
+<!-- ===== AUTH SCREEN ===== -->
+<div class="auth-screen" id="authScreen">
+  <div class="auth-box">
+    <div class="logo">THE LAUNCH <span>DESK</span></div>
+    <div class="auth-sub">Crew Portal — Your projects, your desk</div>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="loginId">Login ID / Code / Email</label>
+        <input type="text" id="loginId" name="login_id" required>
+      </div>
+      <div class="form-group">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" name="password" required>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Login to Crew Portal</button>
+    </form>
+
+    <div class="auth-switch">
+      Forgot your password? <a onclick="showForgotForm()">Request a reset</a><br>
+      <a href="client-portal.html" style="color: var(--teal); display: inline-block; margin-top: 6px;">← Back to Client Portal</a>
+    </div>
+
+    <form id="forgotForm" style="display: none; margin-top: 20px;">
+      <div class="form-group">
+        <label for="forgotEmail">Email or Login ID</label>
+        <input type="text" id="forgotEmail" name="forgotEmail" required>
+      </div>
+      <button type="submit" class="btn btn-ghost" style="width: 100%; justify-content: center;">Send Reset Token</button>
+      <div class="auth-switch"><a onclick="hideForgotForm()">← Back to login</a></div>
+    </form>
+
+    <div id="authMessage" class="alert" style="display: none;"></div>
+  </div>
+</div>
+
+<!-- ===== DASHBOARD ===== -->
+<div class="dashboard" id="dashboard">
+  <div class="portal-wrap">
+
+    <div class="portal-nav">
+      <div class="logo">THE LAUNCH <span>DESK</span> <span style="font-size: 11px; color: var(--text-dim); font-family: 'IBM Plex Mono', monospace;">CREW</span></div>
+      <div class="portal-nav-right">
+        <span class="user-info" id="userInfo">Loading...</span>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+    </div>
+
+    <div class="portal-greeting">
+      <h1>Welcome, <span id="userName">Crew</span></h1>
+      <p id="userRole">Your assigned projects and conversations.</p>
+    </div>
+
+    <div class="section-header">
+      <h2>Assigned Projects</h2>
+    </div>
+    <div id="projectsList">
+      <div class="empty-state">
+        <div class="icon">🗂️</div>
+        <h3>No projects assigned</h3>
+        <p>Projects assigned to you will show up here with full chat access.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== PROJECT DETAIL MODAL ===== -->
+<div class="modal-overlay" id="projectModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalProjectTitle">Project Details</h2>
+      <button class="modal-close" onclick="closeModal('projectModal')">&times;</button>
+    </div>
+    <div id="modalProjectContent">
+      <div class="form-group">
+        <label>Status</label>
+        <span id="modalStatus" class="pill"></span>
+      </div>
+      <div class="form-group">
+        <label>Client</label>
+        <span id="modalClient" style="color: var(--flap);"></span>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <p id="modalDescription" style="font-size: 14px; color: var(--text-dim); line-height: 1.6;"></p>
+      </div>
+      <div class="form-group">
+        <label>Timeline</label>
+        <span id="modalTimeline" style="color: var(--flap);"></span>
+      </div>
+
+      <h3 style="font-size: 16px; margin-bottom: 12px; margin-top: 24px;">Messages</h3>
+      <div class="modal-messages" id="modalMessages">
+        <div style="text-align:center;color:var(--text-dim);font-size:13px;padding:20px;">Loading messages...</div>
+      </div>
+      <div class="msg-input-area">
+        <input type="text" id="msgInput" placeholder="Type your message..." onkeydown="if(event.key==='Enter') sendMessage()">
+        <button class="btn btn-primary btn-sm" onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== NOTIFICATION ===== -->
+<div class="notification" id="notification"></div>
+
+<script>
+let token = null;
+let crewMember = null;
+let currentProjectId = null;
+
+// ===== AUTH =====
+async function handleLogin(e) {
+  e.preventDefault();
+  const loginValue = document.getElementById('loginId').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const payload = { password };
+
+  if (loginValue.includes('@')) payload.email = loginValue;
+  else if (/^TLD/i.test(loginValue)) payload.login_id = loginValue.toUpperCase();
+  else payload.code = loginValue.toUpperCase();
+
+  try {
+    const res = await fetch('/api/crew/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Login failed');
+    token = data.token;
+    crewMember = data.crew;
+    localStorage.setItem('tld_crew_token', token);
+    localStorage.setItem('tld_crew_user', JSON.stringify(crewMember));
+    showDashboard();
+  } catch (err) {
+    showAuthMessage(err.message, 'error');
+  }
+}
+
+document.getElementById('loginForm').addEventListener('submit', handleLogin);
+
+// ===== FORGOT PASSWORD =====
+function showForgotForm() {
+  document.getElementById('loginForm').style.display = 'none';
+  document.getElementById('forgotForm').style.display = 'block';
+  document.getElementById('authMessage').style.display = 'none';
+}
+function hideForgotForm() {
+  document.getElementById('forgotForm').style.display = 'none';
+  document.getElementById('loginForm').style.display = 'block';
+  document.getElementById('authMessage').style.display = 'none';
+}
+
+document.getElementById('forgotForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const value = document.getElementById('forgotEmail').value.trim();
+  const payload = value.includes('@') ? { email: value } : { login_id: value.toUpperCase() };
+  try {
+    const res = await fetch('/api/crew/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Request failed');
+    showAuthMessage(data.message || 'If the account exists, a reset link has been sent.', 'success');
+    if (data.reset_token) {
+      showAuthMessage('Reset token (dev): ' + data.reset_token, 'success');
+    }
+  } catch (err) {
+    showAuthMessage(err.message, 'error');
+  }
+});
+
+// ===== SESSION CHECK =====
+function checkSession() {
+  const savedToken = localStorage.getItem('tld_crew_token');
+  const savedUser = localStorage.getItem('tld_crew_user');
+  if (savedToken && savedUser) {
+    token = savedToken;
+    crewMember = JSON.parse(savedUser);
+    showDashboard();
+    return true;
+  }
+  return false;
+}
+
+// ===== DASHBOARD =====
+async function showDashboard() {
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('dashboard').classList.add('active');
+  document.getElementById('userName').textContent = crewMember.name || 'Crew';
+  document.getElementById('userInfo').textContent = (crewMember.login_id || crewMember.code || '') + ' · ' + (crewMember.role || '');
+  document.getElementById('userRole').textContent = crewMember.role ? crewMember.role + ' · ' + (crewMember.department || '') : 'Your assigned projects and conversations.';
+  await loadProjects();
+}
+
+// ===== LOAD PROJECTS =====
+async function loadProjects() {
+  try {
+    const res = await fetch('/api/crew/projects', { headers: authHeaders() });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    renderProjects(data.projects || []);
+  } catch (err) {
+    showNotification(err.message, 'error');
+  }
+}
+
+function renderProjects(projects) {
+  const container = document.getElementById('projectsList');
+  if (projects.length === 0) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">🗂️</div><h3>No projects assigned</h3><p>Projects assigned to you will show up here with full chat access.</p></div>';
+    return;
+  }
+  container.innerHTML = projects.map(p => {
+    return '<div class="project-card" onclick="openProjectModal(' + p.id + ')">' +
+      '<div class="project-card-header"><div class="project-card-title">' + escapeHtml(p.title) + '</div><span class="pill ' + getStatusClass(p.status) + '">' + formatStatus(p.status) + '</span></div>' +
+      '<div class="project-card-desc">' + (p.description ? escapeHtml(p.description.substring(0, 150)) + (p.description.length > 150 ? '...' : '') : 'No description') + '</div>' +
+      '<div class="project-card-meta"><span>👤 ' + escapeHtml(p.client_name || 'Client') + '</span><span>📅 ' + new Date(p.created_at).toLocaleDateString() + '</span>' + (p.timeline ? '<span>⏱️ ' + escapeHtml(p.timeline) + '</span>' : '') + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+// ===== PROJECT DETAIL MODAL =====
+async function openProjectModal(projectId) {
+  currentProjectId = projectId;
+  try {
+    const res = await fetch('/api/projects/' + projectId, { headers: authHeaders() });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    const p = data.project;
+    document.getElementById('modalProjectTitle').textContent = p.title;
+    document.getElementById('modalStatus').textContent = formatStatus(p.status);
+    document.getElementById('modalStatus').className = 'pill ' + getStatusClass(p.status);
+    document.getElementById('modalClient').textContent = p.client_name || 'Client';
+    document.getElementById('modalDescription').textContent = p.description || 'No description provided.';
+    document.getElementById('modalTimeline').textContent = p.timeline || 'Not specified';
+    document.getElementById('projectModal').classList.add('active');
+    await loadMessages(projectId);
+  } catch (err) {
+    showNotification(err.message, 'error');
+  }
+}
+
+// ===== LOAD MESSAGES =====
+async function loadMessages(projectId) {
+  try {
+    const res = await fetch('/api/projects/' + projectId + '/messages', { headers: authHeaders() });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    const container = document.getElementById('modalMessages');
+    const messages = data.messages || [];
+    if (messages.length === 0) {
+      container.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-size:13px;padding:20px;">No messages yet. Start the conversation!</div>';
+    } else {
+      container.innerHTML = messages.map(m => {
+        const cls = m.sender_role === 'client' ? 'client' : m.sender_role;
+        const isMine = m.sender_id === crewMember.id;
+        return '<div class="msg ' + cls + '">' +
+          '<strong>' + escapeHtml(m.sender_name || m.sender_role) + '</strong>' + (isMine ? ' (you)' : '') + ': ' + escapeHtml(m.content) +
+          '<div class="msg-meta">' + new Date(m.created_at).toLocaleString() + '</div>' +
+          '</div>';
+      }).join('');
+    }
+    container.scrollTop = container.scrollHeight;
+  } catch (err) {
+    document.getElementById('modalMessages').innerHTML = '<div style="text-align:center;color:var(--danger);font-size:13px;padding:20px;">Failed to load messages.</div>';
+  }
+}
+
+// ===== SEND MESSAGE =====
+async function sendMessage() {
+  const input = document.getElementById('msgInput');
+  const content = input.value.trim();
+  if (!content || !currentProjectId) return;
+  input.value = '';
+  try {
+    const res = await fetch('/api/projects/' + currentProjectId + '/messages', {
+      method: 'POST',
+      headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to send');
+    await loadMessages(currentProjectId);
+  } catch (err) {
+    showNotification(err.message, 'error');
+    input.value = content;
+  }
+}
+
+// ===== HELPERS =====
+function authHeaders() {
+  return { 'Authorization': 'Bearer ' + token };
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('active');
+}
+
+function logout() {
+  localStorage.removeItem('tld_crew_token');
+  localStorage.removeItem('tld_crew_user');
+  token = null;
+  crewMember = null;
+  document.getElementById('dashboard').classList.remove('active');
+  document.getElementById('authScreen').style.display = 'flex';
+}
+
+function showAuthMessage(message, type) {
+  const el = document.getElementById('authMessage');
+  el.textContent = message;
+  el.className = 'alert ' + (type === 'error' ? 'alert-error' : 'alert-success');
+  el.style.display = 'flex';
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function formatStatus(status) {
+  const map = { 'applied': 'APPLIED', 'discovery': 'DISCOVERY', 'in_progress': 'IN PROGRESS', 'review': 'REVIEW', 'completed': 'COMPLETED', 'cancelled': 'CANCELLED' };
+  return map[status] || (status ? status.toUpperCase() : 'UNKNOWN');
+}
+
+function getStatusClass(status) {
+  const map = { 'applied': 'pill-amber', 'discovery': 'pill-warning', 'in_progress': '', 'review': 'pill-warning', 'completed': 'pill-success', 'cancelled': 'pill-danger' };
+  return map[status] || '';
+}
+
+function showNotification(message, type) {
+  const el = document.getElementById('notification');
+  el.textContent = message;
+  el.className = 'notification ' + (type === 'error' ? 'error' : '') + ' show';
+  setTimeout(() => el.classList.remove('show'), 6000);
+}
+
+// ===== INIT =====
+if (!checkSession()) {
+  // Show login screen (default)
+}
+</script>
+</body>
+</html>

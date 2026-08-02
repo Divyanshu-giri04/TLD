@@ -6,22 +6,39 @@ const { v4: uuidv4 } = require('uuid');
 const uploadsDir = path.join(__dirname, '..', 'uploads');
 fs.mkdirSync(uploadsDir, { recursive: true });
 
+// Whitelist of extensions -> allowed mime types (audit 2.7: require BOTH)
+const ALLOWED = {
+  '.jpg': ['image/jpeg'],
+  '.jpeg': ['image/jpeg'],
+  '.png': ['image/png'],
+  '.gif': ['image/gif'],
+  '.pdf': ['application/pdf'],
+  '.doc': ['application/msword'],
+  '.docx': ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+  '.zip': ['application/zip', 'application/x-zip-compressed'],
+  '.rar': ['application/vnd.rar', 'application/x-rar-compressed'],
+  '.mp4': ['video/mp4'],
+  '.mov': ['video/quicktime'],
+  '.mp3': ['audio/mpeg'],
+  '.wav': ['audio/wav', 'audio/x-wav']
+};
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, uploadsDir);
   },
   filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname);
+    const ext = path.extname(file.originalname).toLowerCase();
     cb(null, `${uuidv4()}${ext}`);
   }
 });
 
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx|zip|rar|mp4|mov|mp3|wav/;
-  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = allowedTypes.test(file.mimetype);
+  const ext = path.extname(file.originalname).toLowerCase();
+  const allowedMimes = ALLOWED[ext];
 
-  if (extname || mimetype) {
+  // Require both a whitelisted extension AND a matching mime type
+  if (allowedMimes && allowedMimes.includes(file.mimetype)) {
     cb(null, true);
   } else {
     cb(new Error('File type not supported'), false);

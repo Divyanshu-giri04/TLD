@@ -814,15 +814,19 @@
       <form id="applyForm">
         <div class="form-group">
           <label>Full Name</label>
-          <input type="text" name="name" required placeholder="Your name">
+          <input type="text" name="name" required>
         </div>
         <div class="form-group">
           <label>Email</label>
-          <input type="email" name="email" required placeholder="you@company.com">
+          <input type="email" name="email" required>
         </div>
         <div class="form-group">
           <label>Company</label>
-          <input type="text" name="company" placeholder="Company name (optional)">
+          <input type="text" name="company">
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" minlength="6" required>
         </div>
         <div class="form-group">
           <label for="department">Project Type</label>
@@ -837,7 +841,7 @@
         </div>
         <div class="form-group">
           <label>Project Description</label>
-          <textarea name="description" required placeholder="Tell us about your project, timeline, and goals..."></textarea>
+          <textarea name="description" required></textarea>
         </div>
         <div class="form-group">
           <label for="budget">Budget Range</label>
@@ -932,10 +936,18 @@
   }
 })();
 
+// ===== ESCAPE HTML =====
+function escapeHtml(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
 // ===== LOAD STATS FROM API =====
 async function loadSettings() {
   try {
-    const res = await fetch('/api/admin/settings');
+    const res = await fetch('/api/public/settings');
     if (!res.ok) throw new Error('Failed to load');
     const data = await res.json();
     const statsMap = data.settings || {};
@@ -990,26 +1002,22 @@ async function loadSettings() {
 // ===== LOAD DEPARTMENTS =====
 async function loadDepartments() {
   try {
-    const res = await fetch('/api/admin/settings');
-    // We'll use static data for departments with crew count
+    const res = await fetch('/api/departments');
+    if (!res.ok) throw new Error('Failed to load');
+    const data = await res.json();
     const deptGrid = document.getElementById('deptGrid');
-    const departments = [
-      { code: 'LEAD', title: 'Direction', desc: 'Sets scope, owns the final call on anything client-facing, and steps in wherever a desk needs backup.', count: 1 },
-      { code: 'DEV', title: 'Development', desc: 'Websites, web apps, and internal tools, built and shipped by two developers who pair on anything non-trivial.', count: 2 },
-      { code: 'OPS', title: 'Client & People Management', desc: 'Keeping clients briefed, contracts clear, and the crew workload sane. Part HR, part account management.', count: 2 },
-      { code: 'MKT', title: 'Marketing & Growth', desc: 'Positioning, outreach, and the portfolio you are reading right now — run by one person full-time.', count: 1 },
-      { code: 'SUPPORT', title: 'General Support', desc: 'The desk anyone can reach for help mid-project — questions, small fixes, and anything that does not fit neatly elsewhere.', count: 1 },
-      { code: 'HR', title: 'HR', desc: 'Collaboration and pair-programming mindset are essential. Onboarding and team culture.', count: 1 }
-    ];
+    const departments = data.departments || [];
 
-    deptGrid.innerHTML = departments.map(d => `
-      <div class="dept-card">
-        <div class="dept-code">${d.code}</div>
-        <div class="dept-title">${d.title}</div>
-        <div class="dept-desc">${d.desc}</div>
-        <div class="dept-count">${d.count} on desk</div>
-      </div>
-    `).join('');
+    if (departments.length > 0) {
+      deptGrid.innerHTML = departments.map(d => `
+        <div class="dept-card">
+          <div class="dept-code">${escapeHtml(d.code)}</div>
+          <div class="dept-title">${escapeHtml(d.title)}</div>
+          <div class="dept-desc">${escapeHtml(d.description || '')}</div>
+          <div class="dept-count">${escapeHtml(String(d.head_count || 0))} on desk</div>
+        </div>
+      `).join('');
+    }
   } catch (err) {
     console.error('Failed to load departments');
   }
@@ -1024,18 +1032,18 @@ async function loadCrew() {
 
     if (data.crew && data.crew.length > 0) {
       crewGrid.innerHTML = data.crew.map(m => `
-        <a href="${m.portfolio_url || '#'}" target="_blank" style="text-decoration: none;">
+        <a href="${escapeHtml(m.portfolio_url) || '#'}" target="_blank" style="text-decoration: none;" rel="noopener noreferrer">
           <div class="crew-card">
             <div class="crew-top">
-              <span class="crew-code">${m.code}</span>
-              <span class="crew-avatar">${m.initials}</span>
+              <span class="crew-code">${escapeHtml(m.code)}</span>
+              <span class="crew-avatar">${escapeHtml(m.initials)}</span>
             </div>
             <div>
-              <div class="crew-name">${m.name}</div>
-              <div class="crew-role">${m.role}</div>
-              <div class="crew-line">${m.bio || ''}</div>
+              <div class="crew-name">${escapeHtml(m.name)}</div>
+              <div class="crew-role">${escapeHtml(m.role)}</div>
+              <div class="crew-line">${escapeHtml(m.bio || '')}</div>
             </div>
-            <div class="crew-status">${m.status || 'ON DECK'}</div>
+            <div class="crew-status">${escapeHtml(m.status || 'ON DECK')}</div>
           </div>
         </a>
       `).join('');
@@ -1064,7 +1072,7 @@ document.getElementById('applyForm')?.addEventListener('submit', async (e) => {
       body: JSON.stringify({
         name: data.name,
         email: data.email,
-        password: 'temp-pass-' + Date.now(), // Generate temp password
+        password: data.password,
         company: data.company || ''
       })
     });
@@ -1098,7 +1106,7 @@ document.getElementById('applyForm')?.addEventListener('submit', async (e) => {
 
     const projectData = await projectRes.json();
 
-    showNotification('Application submitted! Check your email for login details. Your API key: ' + regData.api_key, 'success');
+    showNotification('Application submitted! You can now log in to the Client Portal with the password you set. Your API key: ' + regData.api_key, 'success');
 
     form.reset();
   } catch (err) {
