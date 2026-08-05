@@ -21,8 +21,10 @@ router.post('/auth/forgot-password', AuthController.forgotPassword);
 router.post('/auth/reset-password', AuthController.resetPassword);
 
 // --- Projects ---
-router.get('/projects', verifyToken, ProjectController.list);
-router.get('/projects/:id', verifyToken, ProjectController.detail);
+// Read routes accept a JWT Bearer token OR an API key (x-api-key) so the API
+// key can be used directly from Postman for a client's own project data.
+router.get('/projects', verifyTokenOrApiKey, ProjectController.list);
+router.get('/projects/:id', verifyTokenOrApiKey, ProjectController.detail);
 router.post('/projects', verifyToken, ProjectController.create);
 router.post('/projects/:id/upload', verifyToken, upload.array('files', 5), ProjectController.uploadFiles);
 

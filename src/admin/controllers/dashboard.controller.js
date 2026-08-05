@@ -2,7 +2,23 @@
 // src/admin/controllers/dashboard.controller.js
 // Admin dashboard + stats.
 // ---------------------------------------------------------------------------
-const { getDatabase, get, query, isPostgres } = require('../../config/db');
+const { getDatabase, get, query, isMongo, isPostgres } = require('../../config/db');
+
+// Resolve a message sender's display name given its role and sender id.
+// Works on both Mongo and SQL by querying the relevant collection.
+async function resolveSenderName(senderRole, senderId) {
+  if (!senderId) return senderRole || 'unknown';
+  try {
+    if (senderRole === 'crew') {
+      const c = await get('SELECT name FROM crew_members WHERE id = ?', [Number(senderId)]);
+      return (c && c.name) || ('crew#' + senderId);
+    }
+    const u = await get('SELECT name FROM users WHERE id = ?', [Number(senderId)]);
+    return (u && u.name) || ('user#' + senderId);
+  } catch (_) {
+    return senderRole || 'unknown';
+  }
+}
 
 class DashboardController {
   // GET /api/admin/dashboard - Dashboard statistics
@@ -26,27 +42,50 @@ class DashboardController {
           ORDER BY p.created_at DESC LIMIT 5
         `),
         project_status_distribution: await query('SELECT status, COUNT(*) as count FROM projects GROUP BY status'),
-        recent_messages: await query(`
-          SELECT m.*, p.title as project_title, p.client_id,
-            CASE
-              WHEN m.sender_role = 'crew' THEN (SELECT cm.name FROM crew_members cm WHERE cm.id = m.sender_id)
-              ELSE (SELECT u.name FROM users u WHERE u.id = m.sender_id)
-            END as sender_name
-          FROM messages m
-          JOIN projects p ON m.project_id = p.id
-          ORDER BY m.created_at DESC LIMIT 5
-        `)
+        // recent_messages — resolve sender_name in JS when Mongo is active (the
+        // CASE/subquery expression is SQL-specific and not translatable).
+        recent_messages: await (async () => {
+          const rows = await query(`
+            SELECT m.*, p.title as project_title, p.client_id
+            FROM messages m
+            JOIN projects p ON m.project_id = p.id
+            ORDER BY m.created_at DESC LIMIT 5
+          `);
+          if (isMongo()) {
+            for (const row of rows) {
+              row.sender_name = await resolveSenderName(row.sender_role, row.sender_id);
+            }
+          }
+          return rows;
+        })()
       };
 
       // Monthly projects for chart — driver-aware
-      const monthExpr = isPostgres()
-        ? "to_char(created_at, 'YYYY-MM')"
-        : "strftime('%Y-%m', created_at)";
-      const monthlyProjects = await query(`
-        SELECT ${monthExpr} as month, COUNT(*) as count
-        FROM projects
-        GROUP BY month ORDER BY month ASC LIMIT 12
-      `);
+      let monthlyProjects;
+      if (isMongo()) {
+        // Fetch all created_at values and bucket by YYYY-MM in JS.
+        const all = await query('SELECT created_at FROM projects');
+        const buckets = new Map();
+        for (const r of all) {
+          const d = new Date(r.created_at);
+          if (isNaN(d.getTime())) continue;
+          const key = d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0');
+          buckets.set(key, (buckets.get(key) || 0) + 1);
+        }
+        monthlyProjects = [...buckets.entries()]
+          .sort((a, b) => a[0].localeCompare(b[0]))
+          .slice(-12)
+          .map(([month, count]) => ({ month, count }));
+      } else {
+        const monthExpr = isPostgres()
+          ? "to_char(created_at, 'YYYY-MM')"
+          : "strftime('%Y-%m', created_at)";
+        monthlyProjects = await query(`
+          SELECT ${monthExpr} as month, COUNT(*) as count
+          FROM projects
+          GROUP BY month ORDER BY month ASC LIMIT 12
+        `);
+      }
 
       res.json({ stats, monthly_projects: monthlyProjects });
     } catch (err) {

@@ -14,7 +14,7 @@ const rateLimit = require('express-rate-limit');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
-const { getDatabase } = require('../database');
+const { getDatabase, isMongo } = require('./config/db');
 const { initRoutes } = require('./router/index');
 
 const app = express();
@@ -135,9 +135,9 @@ app.use((err, req, res, next) => {
 let server;
 
 async function startServer() {
-  try {
+try {
     await getDatabase();
-    console.log('  ✅ Database initialized successfully');
+    console.log(`  ✅ Database initialized successfully  (Driver: ${isMongo() ? 'MONGO' : 'SQL'})`);
 
     server = app.listen(PORT, HOST, () => {
       console.log(`\n  🚀 The Launch Desk server running`);

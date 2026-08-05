@@ -121,41 +121,7 @@
       display: inline-block;
     }
 
-    .flap-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin: 0 0 24px;
-    }
-
-    .flap {
-      background: var(--flap);
-      color: var(--ink);
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 700;
-      font-size: clamp(28px, 6vw, 58px);
-      line-height: 1;
-      padding: 10px 4px;
-      border-radius: 4px;
-      min-width: 0.75em;
-      text-align: center;
-      box-shadow: 0 2px 0 rgba(0,0,0,0.35), inset 0 -14px 0 rgba(0,0,0,0.06);
-      position: relative;
-    }
-
-    .flap::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 50%;
-      height: 1px;
-      background: rgba(0,0,0,0.18);
-    }
-
-    .flap.space { background: transparent; box-shadow: none; }
-    .flap.space::after { display: none; }
-    .flap.amber { color: var(--amber); }
+    
 
     .hero-sub {
       font-size: 17px;
@@ -539,7 +505,22 @@
       transition: all 0.3s ease;
       z-index: 100;
     }
-
+    .flap-row{display:flex; flex-wrap:wrap; gap: 6px; margin:0 0 20px;}
+  .flap{
+    background:var(--flap); color:var(--ink);
+    font-family:'Space Grotesk',sans-serif; font-weight:700;
+    font-size:clamp(28px,6vw,58px); line-height:1;
+    padding:10px 4px; border-radius:4px;
+    min-width:0.75em; text-align:center;
+    box-shadow:0 2px 0 rgba(0,0,0,0.35), inset 0 -14px 0 rgba(0,0,0,0.06);
+    position:relative;
+  }
+  .flap::after{
+    content:''; position:absolute; left:0; right:0; top:50%; height:1px;
+    background:rgba(0,0,0,0.18);
+  }
+  .flap.space{background:transparent; box-shadow:none;}
+  .flap.amber{color:var(--amber);}
     .notification.show {
       transform: translateY(0);
       opacity: 1;
@@ -572,7 +553,7 @@
 <header class="hero">
   <div class="wrap">
     <div class="eyebrow">THE LAUNCH DESK · Est. 2026</div>
-    <div class="flap-row" id="flapTitle" aria-label="We build. We launch. We show you how."></div>
+    <div class="flap-row" id="flapTitle" aria-label="We build.We launch.We show you how."></div>
     <p class="hero-sub">
       A lean crew of seven who build, manage, and market client work end to end —
       no scattered freelancers, one desk that answers for all of it.

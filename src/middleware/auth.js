@@ -3,7 +3,7 @@
 // Authentication + authorization middleware (shared across admin/client/crew).
 // ---------------------------------------------------------------------------
 const jwt = require('jsonwebtoken');
-const { getDatabase, get } = require('../../database');
+const { getDatabase, get } = require('../config/db');
 
 if (!process.env.JWT_SECRET) {
   // Fail hard on boot if secret missing — no fallback (audit 1.2)
