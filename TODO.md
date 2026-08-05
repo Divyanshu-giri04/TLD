@@ -1,52 +1,38 @@
-# TODO — Audit Fix Completion
+# TODO — Restructure The Launch Desk into Layered admin/client/crew folders
 
-Tracked against `AUDIT.md`. Most critical and functional fixes are already in place;
-these are the remaining items.
+Goal: Convert the current routes/ structure into the `node setup` layered architecture
+(controllers + routes) grouped into `admin`, `client`, `crew` folders, keeping the
+working `database.js` CommonJS data layer intact.
 
-## Remaining Fixes
+## Steps
+- [x] Create `src/config/db.js` (wraps existing database.js)
+- [x] Create `src/middleware/auth.js` (copied from middleware/auth.js)
+- [x] Create `src/middleware/upload.js` (copied from middleware/upload.js)
+- [x] Create `src/utils/schemas.js` (shared zod schemas)
+- [x] Create `src/admin/controllers/admin.controller.js` (dashboard, stats, settings, messages, reset-password, servers, teams)
+- [x] Create `src/admin/routes/admin.routes.js`
+- [x] Create `src/client/controllers/auth.controller.js` (register, login, me, keys, forgot/reset password)
+- [x] Create `src/client/controllers/client.controller.js` (client CRUD)
+- [x] Create `src/client/controllers/project.controller.js` (project CRUD + upload)
+- [x] Create `src/client/controllers/messages.controller.js` (messages + unread)
+- [x] Create `src/client/routes/client.routes.js`
+- [x] Create `src/crew/controllers/crew.controller.js` (crew CRUD, login, projects, forgot-password)
+- [x] Create `src/crew/routes/crew.routes.js`
+- [x] Create `src/shared/controllers/files.controller.js` (file serving)
+- [x] Create `src/shared/controllers/public.controller.js` (public settings, departments)
+- [x] Create `src/shared/routes/shared.routes.js`
+- [x] Create `src/router/index.js` (route aggregator)
+- [x] Create `src/server.js` (entry, rewired from server.js)
+- [x] Update root package.json start script to point to src/server.js
+- [x] Verify server boots and routes work
 
-- [x] **1. Move root assets into `public/`** (audit 1.1)
-  - `css2.css` and `launch-desk-portfolio.html` were already present in `public/` (confirmed identical hashes)
-  - Removed the duplicate root copies so only `public/` is served statically
-
-- [x] **2. Fix `index.html` misleading "Check your email" message** (audit 2.3)
-  - Users now create their own password, so the email claim was removed
-  - Updated to: *"Application submitted! You can now log in to the Client Portal with the password you set."*
-
-- [x] **3. Fix `/api/public/departments` URL** in `index.html`
-  - Route is mounted at `/api` so changed to `/api/departments`
-
-## Round 2 — New audit fixes
-
-- [x] **4. Postgres-compatible SQL** (audit §3 migration path)
-  - `database.js`: add + export `nowExpression()` (`CURRENT_TIMESTAMP` on pg, `datetime('now','localtime')` on sqlite)
-  - `routes/projects.js`: use it for `updated_at` (update + upload handlers)
-  - `routes/auth.js`: use it for the reset-token expiry comparison
-
-- [x] **5. Stop leaking sensitive crew fields publicly** (audit 1.x hardening)
-  - `middleware/auth.js`: add `optionalAuth` (never 401s; sets `req.user` when a valid Bearer token is present)
-  - `routes/crew.js`: `GET /api/crew` uses `optionalAuth`; public callers get a safe subset (no email/login_id/salary/contact_no); admins still get full fields
-
-- [x] **6. Replace `prompt()` password resets in admin panel** (audit 2.7)
-  - `public/admin-panel.html`: proper password-reset modal (target type/id + new password) replacing both `prompt()` calls
-  - Also rewrote the `prompt()`-mentioning comments so the audit scanner has zero false positives
-
-- [x] **7. Client portal shows real assigned crew** (audit 2.6)
-  - `public/client-portal.html`: render `assigned_crew_details` names instead of the stale `assigned_crew` blob
-
-- [x] **8. Fix zod v4 enum error signature** in `routes/admin.js`
-  - `z.enum(['client','crew','admin'], { error: '...' })`
-
-- [x] **9. Repo docs** (audit §3)
-  - `README.md` — setup, env vars, scripts, architecture
-  - `.env.example` — documented env template
-
-## Verification
-
-- [x] Run `node scan-audit.js` — no `prompt(` matches remaining
-- [x] Restart server, run `node test-api.js` — all pass
-- [x] Run `node verify-static.js` — static exposure checks pass
-- [x] Confirm `GET /api/crew` (public) no longer returns `salary`/`email`/`login_id`/`contact_no`
-- [x] Confirm `GET /api/crew` with admin Bearer token still returns full fields
-
-
+## Verification results
+- ✅ Server boots successfully (PORT 3456)
+- ✅ `/api/health` returns `{"status":"ok","service":"the-launch-desk"}`
+- ✅ `/api/public/settings` returns whitelisted settings
+- ✅ `/api/departments` returns departments list
+- ✅ `/api/crew` returns public crew subset
+- ✅ `/api/crew/login` works (DEV-01 / dev-01@2026)
+- ✅ `/api/auth/login` works (admin@thelaunchdesk.io / Admin@2026)
+- ✅ `/api/admin/stats` returns admin dashboard stats (with admin token)
+- ✅ `/api/projects` returns project list (with admin token)

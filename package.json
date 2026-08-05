@@ -5,10 +5,10 @@
   "engines": {
     "node": ">=18"
   },
-  "main": "server.js",
+  "main": "src/server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "start": "node src/server.js",
+    "dev": "node src/server.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
