@@ -794,16 +794,16 @@
       <h3>Apply for Services</h3>
       <form id="applyForm">
         <div class="form-group">
-          <label>Full Name</label>
-          <input type="text" name="name" required>
+          <label for="name">Full Name</label>
+          <input type="text" id="name" name="name" placeholder="Your full name" required>
         </div>
         <div class="form-group">
-          <label>Email</label>
-          <input type="email" name="email" required>
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="your@email.com" required>
         </div>
         <div class="form-group">
-          <label>Company</label>
-          <input type="text" name="company">
+          <label for="company">Company</label>
+          <input type="text" id="company" name="company" placeholder="Your company name">
         </div>
         <div class="form-group">
           <label for="password">Password</label>
@@ -822,7 +822,7 @@
         </div>
         <div class="form-group">
           <label>Project Description</label>
-          <textarea name="description" required></textarea>
+          <textarea name="description" placeholder="Describe your project" required></textarea>
         </div>
         <div class="form-group">
           <label for="budget">Budget Range</label>
