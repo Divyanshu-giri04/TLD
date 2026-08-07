@@ -30,6 +30,22 @@ async function connectMongo() {
     });
     mongoConnected = true;
     console.log('  ✅ MongoDB connected  → ' + MONGODB_URI);
+
+    // Verify the connection is actually usable before committing to the Mongo
+    // driver. A stale/partial connection (e.g. the local mongod is not really
+    // up) can resolve moveAboveTimeout but then buffer every query for 10s and
+    // return 500s to the API. Ping the DB with a tiny op and fall back to SQL
+    // if it fails.
+    try {
+      await mongoose.connection.db.admin().ping();
+    } catch (pingErr) {
+      mongoConnected = false;
+      console.warn('  ⚠️  MongoDB ping failed (' + (pingErr && pingErr.message ? pingErr.message : pingErr) + ')');
+      console.warn('     Falling back to built-in SQL database.');
+      try { await mongoose.disconnect(); } catch (_) {}
+      return false;
+    }
+
     // Seed default data (admin/departments/crew/settings) if empty
     try {
       const { seedMongo } = require('./seed');

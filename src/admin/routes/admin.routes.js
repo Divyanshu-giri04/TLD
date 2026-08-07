@@ -3,7 +3,8 @@
 // Admin API routes — fully self-contained admin module.
 // ---------------------------------------------------------------------------
 const express = require('express');
-const { verifyToken, requireAdmin } = require('../../middleware/auth');
+const { verifyToken } = require('../../middleware/auth');
+const { adminOnly } = require('../middleware/guard');
 
 const DashboardController = require('../controllers/dashboard.controller');
 const SettingsController = require('../controllers/settings.controller');
@@ -16,7 +17,7 @@ const AdminClientsController = require('../controllers/clients.controller');
 const router = express.Router();
 
 // All admin routes require a valid admin JWT
-router.use(verifyToken, requireAdmin);
+router.use(verifyToken, adminOnly);
 
 // Dashboard + stats
 router.get('/dashboard', DashboardController.dashboard);

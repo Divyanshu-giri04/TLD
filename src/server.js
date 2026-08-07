@@ -26,9 +26,31 @@ fs.mkdirSync(uploadsDir, { recursive: true });
 
 // ---------------------------------------------------------------------------
 // Security middleware (audit 1.4)
+//
+// NOTE: The HTML pages (admin-panel.html, client-portal.html, crew-portal.html,
+// index.html) use inline <script> and <style> blocks, and load Google Fonts.
+// The default Helmet CSP (script-src 'self') would block all inline scripts and
+// break the panels. We relax CSP to allow inline scripts/styles and the font
+// CDN, while keeping the other Helmet protections (X-Frame-Options, nosniff,
+// HSTS, etc.).
 // ---------------------------------------------------------------------------
 
-app.use(helmet());
+
+
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+      fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+      imgSrc: ["'self'", 'data:', 'https:'],
+      connectSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      frameAncestors: ["'none'"]
+    }
+  }
+}));
 
 // CORS allowlist — only trusted origins (audit 1.4)
 const ALLOWED_ORIGINS = (process.env.CORS_ORIGINS || 'http://localhost:3000,http://127.0.0.1:3000')

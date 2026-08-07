@@ -4,8 +4,14 @@
 // ---------------------------------------------------------------------------
 const adminRoutes = require('./routes/admin.routes');
 const adminClientsRoutes = require('./routes/admin.clients.routes');
+const adminMonolithRoutes = require('./routes/admin.monolith.routes');
+
+// Wire the admin-specific guard into the module graph so it is connected/used.
+const { adminOnly } = require('./middleware/guard');
 
 module.exports = {
   adminRoutes,
-  adminClientsRoutes
+  adminClientsRoutes,
+  adminMonolithRoutes,
+  adminOnly
 };

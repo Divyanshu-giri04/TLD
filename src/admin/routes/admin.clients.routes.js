@@ -3,13 +3,14 @@
 // Admin-managed client CRUD routes (mounted at /api/clients).
 // ---------------------------------------------------------------------------
 const express = require('express');
-const { verifyToken, requireAdmin } = require('../../middleware/auth');
+const { verifyToken } = require('../../middleware/auth');
+const { adminOnly } = require('../middleware/guard');
 const AdminClientsController = require('../controllers/clients.controller');
 
 const router = express.Router();
 
 // All client management routes require admin
-router.use(verifyToken, requireAdmin);
+router.use(verifyToken, adminOnly);
 
 // GET /api/clients - List all clients
 router.get('/', AdminClientsController.list);

@@ -4,7 +4,8 @@
 // ---------------------------------------------------------------------------
 const express = require('express');
 const CrewController = require('../controllers/crew.controller');
-const { verifyToken, requireAdmin, optionalAuth } = require('../../middleware/auth');
+const { verifyToken, optionalAuth } = require('../../middleware/auth');
+const { crewAdminOnly } = require('../middleware/guard');
 
 const router = express.Router();
 
@@ -21,9 +22,9 @@ router.post('/forgot-password', CrewController.forgotPassword);
 router.get('/projects', verifyToken, CrewController.projects);
 
 // Admin-only crew management
-router.post('/', verifyToken, requireAdmin, CrewController.add);
-router.put('/:id', verifyToken, requireAdmin, CrewController.update);
-router.put('/:id/password', verifyToken, requireAdmin, CrewController.changePassword);
-router.delete('/:id', verifyToken, requireAdmin, CrewController.remove);
+router.post('/', verifyToken, crewAdminOnly, CrewController.add);
+router.put('/:id', verifyToken, crewAdminOnly, CrewController.update);
+router.put('/:id/password', verifyToken, crewAdminOnly, CrewController.changePassword);
+router.delete('/:id', verifyToken, crewAdminOnly, CrewController.remove);
 
 module.exports = router;
